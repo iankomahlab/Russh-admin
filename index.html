@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivr GH — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --brand:#1A56A0;--brand-dark:#0F3D7A;--brand-mid:#2563EB;--brand-light:#E8F0FA;
+  --amber:#D97706;--amber-light:#FEF3C7;
+  --teal:#0F766E;--teal-light:#CCFBF1;
+  --red:#DC2626;--red-light:#FEE2E2;
+  --green:#16A34A;--green-light:#DCFCE7;
+  --purple:#7C3AED;--purple-light:#EDE9FE;
+  --orange:#EA580C;--orange-light:#FFF7ED;
+  --g50:#F9FAFB;--g100:#F3F4F6;--g200:#E5E7EB;--g300:#D1D5DB;
+  --g400:#9CA3AF;--g500:#6B7280;--g600:#4B5563;--g700:#374151;--g800:#1F2937;
+  --bg:#F0F4FA;--surface:#FFFFFF;
+  --sidebar-w:240px;--topbar-h:62px;
+  --r:12px;--rs:8px;
+  --font:'Inter',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--g800);overflow:hidden;height:100vh}
+
+/* ── LAYOUT ── */
+.layout{display:flex;height:100vh}
+.sidebar{width:var(--sidebar-w);background:#0F1B2D;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;gap:12px}
+.content{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+
+/* ── SIDEBAR ── */
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.sb-logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.sb-logo em{color:#FCD34D;font-style:normal}
+.sb-meta{font-size:10.5px;color:rgba(255,255,255,0.35);margin-top:2px;letter-spacing:0.3px}
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto}
+.sb-section{padding:14px 16px 4px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:1px;text-transform:uppercase}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.15s;border-left:3px solid transparent;position:relative}
+.sb-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9)}
+.sb-item.active{background:rgba(26,86,160,0.35);color:#fff;border-left-color:#3B82F6}
+.sb-item i{font-size:15px;width:17px;flex-shrink:0}
+.sb-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sb-badge.green{background:var(--green)}
+.sb-badge.amber{background:var(--amber)}
+.sb-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.07)}
+.sb-user{display:flex;align-items:center;gap:10px}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.sb-name{font-size:12.5px;font-weight:600;color:rgba(255,255,255,0.85)}
+.sb-role{font-size:10.5px;color:rgba(255,255,255,0.35)}
+
+/* ── TOPBAR ── */
+.tb-search{display:flex;align-items:center;gap:8px;background:var(--g100);border-radius:var(--rs);padding:7px 12px;flex:1;max-width:360px}
+.tb-search input{background:none;border:none;outline:none;font-size:13.5px;color:var(--g700);width:100%;font-family:var(--font)}
+.tb-search input::placeholder{color:var(--g400)}
+.tb-actions{display:flex;align-items:center;gap:8px}
+.tb-icon-btn{width:36px;height:36px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--g500);transition:all 0.15s;position:relative;background:transparent;border:none;font-family:var(--font)}
+.tb-icon-btn:hover{background:var(--g100);color:var(--g700)}
+.tb-notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid var(--surface)}
+.tb-divider{width:1px;height:24px;background:var(--g200)}
+.tb-page{display:flex;flex-direction:column}
+.tb-title{font-size:15px;font-weight:700;color:var(--g800)}
+.tb-breadcrumb{font-size:11.5px;color:var(--g400)}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--g200)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:13.5px;font-weight:700;color:var(--g800)}
+.card-sub{font-size:11px;color:var(--g400);margin-top:1px}
+.card-bd{padding:18px}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{background:var(--surface);border-radius:var(--r);border:1px solid var(--g200);padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.stat-icon{width:38px;height:38px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:4px}
+.stat-val{font-size:26px;font-weight:800;color:var(--g800);line-height:1}
+.stat-lbl{font-size:11.5px;color:var(--g500);font-weight:500}
+.stat-delta{font-size:11.5px;display:flex;align-items:center;gap:3px;font-weight:500}
+.stat-delta.up{color:var(--green)}
+.stat-delta.down{color:var(--red)}
+.stat-delta.neu{color:var(--g400)}
+
+/* ── TABLES ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{padding:9px 14px;text-align:left;font-size:10.5px;font-weight:700;color:var(--g400);letter-spacing:0.6px;text-transform:uppercase;border-bottom:1px solid var(--g200);background:var(--g50);white-space:nowrap}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--g100);color:var(--g700);vertical-align:middle}
+.tbl tr:hover td{background:#FAFBFF}
+.tbl tr:last-child td{border-bottom:none}
+
+/* ── BADGES / CHIPS ── */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600}
+.chip.green{background:var(--green-light);color:#166534}
+.chip.red{background:var(--red-light);color:#991B1B}
+.chip.amber{background:var(--amber-light);color:#92400E}
+.chip.blue{background:var(--brand-light);color:var(--brand-dark)}
+.chip.purple{background:var(--purple-light);color:#5B21B6}
+.chip.gray{background:var(--g100);color:var(--g600)}
+.chip.teal{background:var(--teal-light);color:#115E59}
+.chip i{font-size:8px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;font-family:var(--font);white-space:nowrap}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-dark)}
+.btn-secondary{background:var(--g100);color:var(--g700)}
+.btn-secondary:hover{background:var(--g200)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#B91C1C}
+.btn-success{background:var(--green);color:#fff}
+.btn-outline{background:transparent;color:var(--brand);border:1px solid var(--brand)}
+.btn-outline:hover{background:var(--brand-light)}
+.btn-ghost{background:transparent;color:var(--g500);border:1px solid var(--g200)}
+.btn-ghost:hover{background:var(--g50);color:var(--g700)}
+.btn-sm{padding:5px 10px;font-size:12px;gap:4px}
+.btn-xs{padding:3px 8px;font-size:11px;gap:3px;border-radius:6px}
+.btn-full{width:100%;justify-content:center}
+.btn i{font-size:14px}
+.btn-sm i{font-size:12px}
+
+/* ── FORMS ── */
+.fi{width:100%;padding:8px 11px;border:1px solid var(--g300);border-radius:var(--rs);font-size:13.5px;font-family:var(--font);color:var(--g800);background:var(--surface);outline:none;transition:border-color 0.15s}
+.fi:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(26,86,160,0.08)}
+.fi-sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236B7280' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.fl{display:block;font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px}
+.fg{margin-bottom:14px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── CHARTS ── */
+.bar-h{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.bar-h-label{font-size:12px;color:var(--g500);width:110px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-h-track{flex:1;height:7px;background:var(--g100);border-radius:4px;overflow:hidden}
+.bar-h-fill{height:100%;border-radius:4px;transition:width 0.8s ease;background:var(--brand)}
+.bar-h-val{font-size:12px;font-weight:600;color:var(--g700);min-width:65px;text-align:right}
+
+/* ── MAP ── */
+.live-map{position:relative;border-radius:var(--rs);overflow:hidden;background:#D4E8D4;height:280px}
+.map-dot{position:absolute;border-radius:50%;cursor:pointer;transition:all 0.3s}
+.map-dot.driver{width:10px;height:10px;background:var(--brand);border:2px solid #fff;box-shadow:0 0 0 3px rgba(26,86,160,0.25)}
+.map-dot.driver.busy{background:var(--amber)}
+.map-dot.driver.offline{background:var(--g400)}
+.map-road-h{position:absolute;background:rgba(255,255,255,0.7);height:8px;border-radius:2px}
+.map-road-v{position:absolute;background:rgba(255,255,255,0.7);width:8px;border-radius:2px}
+.map-area{position:absolute;border-radius:6px;font-size:10px;color:var(--g600);font-weight:500;padding:2px 6px}
+.map-legend{position:absolute;bottom:10px;right:10px;background:rgba(255,255,255,0.92);border-radius:var(--rs);padding:8px 10px;font-size:11px}
+.map-legend-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.map-legend-dot{width:8px;height:8px;border-radius:50%}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--g100);margin:14px 0}
+.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.av-blue{background:var(--brand-light);color:var(--brand-dark)}
+.av-amber{background:var(--amber-light);color:#92400E}
+.av-green{background:var(--green-light);color:#166534}
+.av-purple{background:var(--purple-light);color:#5B21B6}
+.av-red{background:var(--red-light);color:#991B1B}
+.av-teal{background:var(--teal-light);color:#115E59}
+.flex{display:flex}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.gap4{gap:4px}.gap6{gap:6px}.gap8{gap:8px}.gap10{gap:10px}.gap12{gap:12px}.gap16{gap:16px}
+.mb4{margin-bottom:4px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}
+.fw6{font-weight:600}.fw7{font-weight:700}
+.fs11{font-size:11px}.fs12{font-size:12px}.fs13{font-size:13px}.fs14{font-size:14px}
+.muted{color:var(--g400)}
+.txt-brand{color:var(--brand)}
+.txt-green{color:var(--green)}
+.txt-red{color:var(--red)}
+.txt-amber{color:var(--amber)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.progress{height:5px;background:var(--g200);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;background:var(--brand);transition:width 0.6s}
+.tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600;background:var(--g100);color:var(--g600)}
+
+/* ── SLIDE-IN PANEL ── */
+.panel-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:90;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.panel-backdrop.open{opacity:1;pointer-events:all}
+.panel{position:fixed;top:0;right:0;height:100vh;width:480px;background:var(--surface);z-index:95;transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden}
+.panel.open{transform:translateX(0)}
+.panel-hd{padding:18px 20px;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.panel-title{font-size:15px;font-weight:700}
+.panel-body{flex:1;overflow-y:auto;padding:20px}
+.panel-footer{padding:16px 20px;border-top:1px solid var(--g200);display:flex;gap:10px;flex-shrink:0}
+
+/* ── MODAL ── */
+.modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-wrap.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:var(--r);width:440px;max-height:90vh;overflow-y:auto;transform:scale(0.95);transition:transform 0.2s}
+.modal-wrap.open .modal{transform:scale(1)}
+.modal-hd{padding:18px 20px;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:15px;font-weight:700}
+.modal-bd{padding:20px}
+.modal-ft{padding:14px 20px;border-top:1px solid var(--g200);display:flex;gap:10px;justify-content:flex-end}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--g800);color:#fff;padding:12px 16px;border-radius:var(--r);font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;min-width:280px;opacity:0;transform:translateY(20px);transition:all 0.3s;pointer-events:none;border-left:4px solid var(--brand)}
+.toast.show{opacity:1;transform:translateY(0);pointer-events:all}
+.toast.success{border-left-color:var(--green)}
+.toast.error{border-left-color:var(--red)}
+.toast.warning{border-left-color:var(--amber)}
+
+/* ── MINI SPARKLINE ── */
+.sparkline{display:flex;align-items:flex-end;gap:2px;height:32px}
+.spark-bar{width:6px;border-radius:2px 2px 0 0;background:var(--brand-light);transition:height 0.5s}
+.spark-bar.hi{background:var(--brand)}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--g200);margin-bottom:16px}
+.tab{padding:9px 16px;font-size:13px;font-weight:600;color:var(--g500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;white-space:nowrap}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+
+/* ── TIMELINE ── */
+.timeline{padding-left:24px;position:relative}
+.timeline::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--g200)}
+.tl-item{position:relative;margin-bottom:16px}
+.tl-dot{position:absolute;left:-21px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--g300);border:2px solid var(--surface);z-index:1}
+.tl-dot.green{background:var(--green)}
+.tl-dot.blue{background:var(--brand)}
+.tl-dot.red{background:var(--red)}
+.tl-dot.amber{background:var(--amber)}
+.tl-time{font-size:11px;color:var(--g400);font-weight:500}
+.tl-text{font-size:13px;color:var(--g700);margin-top:1px}
+
+/* FADE */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeIn 0.25s ease}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.pulse{animation:pulse 2s infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1s linear infinite;display:inline-block}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">Delivr<em>GH</em> <span style="font-size:10px;background:rgba(220,38,38,0.2);color:#FCA5A5;padding:2px 6px;border-radius:4px;font-weight:600;vertical-align:middle">ADMIN</span></div>
+    <div class="sb-meta">Operations Control Centre · Accra</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Main</div>
+    <div class="sb-item active" onclick="nav('overview')"><i class="ti ti-layout-dashboard"></i>Overview <span class="sb-badge green">Live</span></div>
+    <div class="sb-item" onclick="nav('analytics')"><i class="ti ti-chart-line"></i>Analytics</div>
+    <div class="sb-item" onclick="nav('live-map')"><i class="ti ti-map"></i>Live map</div>
+
+    <div class="sb-section">Operations</div>
+    <div class="sb-item" onclick="nav('bookings')"><i class="ti ti-package"></i>Bookings <span class="sb-badge">3</span></div>
+    <div class="sb-item" onclick="nav('drivers')"><i class="ti ti-motorbike"></i>Drivers</div>
+    <div class="sb-item" onclick="nav('customers')"><i class="ti ti-users"></i>Customers</div>
+    <div class="sb-item" onclick="nav('corporates')"><i class="ti ti-building"></i>Corporates</div>
+
+    <div class="sb-section">Finance</div>
+    <div class="sb-item" onclick="nav('payments')"><i class="ti ti-credit-card"></i>Payments</div>
+    <div class="sb-item" onclick="nav('payouts')"><i class="ti ti-wallet"></i>Driver payouts</div>
+    <div class="sb-item" onclick="nav('invoices')"><i class="ti ti-file-invoice"></i>Corp invoices</div>
+
+    <div class="sb-section">Growth</div>
+    <div class="sb-item" onclick="nav('promotions')"><i class="ti ti-rosette-discount"></i>Promotions &amp; discounts <span class="sb-badge green">3</span></div>
+    <div class="sb-item" onclick="nav('referrals')"><i class="ti ti-users-plus"></i>Referral programme</div>
+
+    <div class="sb-section">Trust & Safety</div>
+    <div class="sb-item" onclick="nav('kyc')"><i class="ti ti-id-badge"></i>KYC review <span class="sb-badge amber">5</span></div>
+    <div class="sb-item" onclick="nav('disputes')"><i class="ti ti-alert-triangle"></i>Disputes <span class="sb-badge">2</span></div>
+    <div class="sb-item" onclick="nav('audit')"><i class="ti ti-shield-check"></i>Audit log</div>
+
+    <div class="sb-section">Support</div>
+    <div class="sb-item" onclick="nav('support')"><i class="ti ti-headset"></i>Customer support <span class="sb-badge">7</span></div>
+    <div class="sb-item" onclick="nav('sms-tracking')"><i class="ti ti-message-report"></i>SMS delivery log</div>
+
+    <div class="sb-section">System</div>
+    <div class="sb-item" onclick="nav('pricing')"><i class="ti ti-calculator"></i>Pricing config</div>
+    <div class="sb-item" onclick="nav('notifications')"><i class="ti ti-bell"></i>Notifications</div>
+    <div class="sb-item" onclick="nav('settings')"><i class="ti ti-settings"></i>System settings</div>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">SO</div>
+      <div>
+        <div class="sb-name">Samuel Osei</div>
+        <div class="sb-role">Super Admin · Accra</div>
+      </div>
+      <i class="ti ti-logout" style="margin-left:auto;color:rgba(255,255,255,0.3);cursor:pointer;font-size:15px" title="Sign out"></i>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-page">
+      <div class="tb-title" id="tb-title">Overview</div>
+      <div class="tb-breadcrumb">Admin · <span id="tb-crumb">Dashboard</span></div>
+    </div>
+    <div class="tb-search">
+      <i class="ti ti-search" style="font-size:14px;color:var(--g400)"></i>
+      <input type="text" placeholder="Search bookings, drivers, customers…" id="global-search">
+    </div>
+    <div class="tb-actions">
+      <button class="btn btn-primary btn-sm" onclick="openModal('quick-action')"><i class="ti ti-plus"></i> Quick action</button>
+      <div class="tb-divider"></div>
+      <button class="tb-icon-btn" onclick="nav('live-map')" title="Live map"><i class="ti ti-map" style="font-size:17px"></i></button>
+      <button class="tb-icon-btn" id="notif-btn" onclick="toggleNotifPanel()"><i class="ti ti-bell" style="font-size:17px"></i><span class="tb-notif-dot"></span></button>
+      <button class="tb-icon-btn" onclick="nav('settings')" title="Settings"><i class="ti ti-settings" style="font-size:17px"></i></button>
+    </div>
+  </div>
+
+  <div class="content" id="main-content"></div>
+</div>
+</div>
+
+<!-- ── SLIDE PANEL (notifications) ── -->
+<div class="panel-backdrop" id="panel-backdrop" onclick="closePanel()"></div>
+<div class="panel" id="side-panel">
+  <div class="panel-hd">
+    <div class="panel-title" id="panel-title">Notifications</div>
+    <button class="tb-icon-btn" onclick="closePanel()"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+  <div class="panel-footer" id="panel-footer"></div>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="modal-wrap" id="modal-wrap" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="modal-title">Action</div>
+      <button class="tb-icon-btn" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-bd" id="modal-body"></div>
+    <div class="modal-ft" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ── GLOBALS ───────────────────────────────────────────────────────────────
+var currentScreen = 'overview';
+var driverPositions = {};
+var trackingInterval = null;
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+var pageNames = {
+  overview:'Overview', analytics:'Analytics', 'live-map':'Live driver map',
+  bookings:'Bookings', drivers:'Drivers', customers:'Customers', corporates:'Corporate accounts',
+  payments:'Payments', payouts:'Driver payouts', invoices:'Corporate invoices',
+  kyc:'KYC review', disputes:'Disputes', audit:'Audit log',
+  support:'Customer support', 'sms-tracking':'SMS delivery log',
+  promotions:'Promotions & discounts', referrals:'Referral programme',
+  pricing:'Pricing configuration', notifications:'Notification centre', settings:'System settings'
+};
+
+function nav(screen) {
+  if(trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
+  currentScreen = screen;
+  document.querySelectorAll('.sb-item').forEach(function(el) {
+    el.classList.toggle('active', el.getAttribute('onclick') === "nav('"+screen+"')");
+  });
+  document.getElementById('tb-title').textContent = pageNames[screen] || screen;
+  document.getElementById('tb-crumb').textContent = pageNames[screen] || screen;
+  var fn = screens[screen];
+  var c = document.getElementById('main-content');
+  c.innerHTML = fn ? fn() : '<div style="text-align:center;padding:60px;color:var(--g400)"><i class="ti ti-tools" style="font-size:40px;display:block;margin-bottom:12px"></i>Coming soon</div>';
+  if(screen === 'live-map') initLiveMap();
+}
+
+// ── SCREENS ───────────────────────────────────────────────────────────────
+var screens = {};
+
+// ── OVERVIEW ──────────────────────────────────────────────────────────────
+screens['overview'] = function() {
+  return '<div class="fade">' +
+  // Stats row
+  '<div class="stat-grid mb20">' +
+    mkStat('ti-package','Deliveries today','284','+18% vs yesterday','up','#E8F0FA','var(--brand)') +
+    mkStat('ti-motorbike','Active drivers','47','32 on trip, 15 idle','neu','#FEF3C7','var(--amber)') +
+    mkStat('ti-users','Registered users','8,241','+126 this week','up','var(--green-light)','var(--green)') +
+    mkStat('ti-currency','Revenue (GHS)','12,840','+9.2% vs last week','up','var(--purple-light)','var(--purple)') +
+  '</div>' +
+
+  // Row 2
+  '<div class="grid2 mb20">' +
+
+    // Live bookings
+    '<div class="card">' +
+      '<div class="card-hd"><div><div class="card-title">Live bookings</div><div class="card-sub">Active right now — auto-refreshing</div></div>' +
+        '<div class="flex gap8 items-center"><span class="chip green pulse"><i class="ti ti-circle-filled"></i> 12 live</span>' +
+        '<button class="btn btn-ghost btn-sm" onclick="nav(\'bookings\')">See all <i class="ti ti-arrow-right"></i></button></div>' +
+      '</div>' +
+      '<div>' +
+        liveRow('DLV-00049','Ring Road → Osu','en_route','Kwame A.','GHS 22','2 min') +
+        liveRow('DLV-00048','East Legon → Tema','picked_up','Yaa M.','GHS 45','8 min') +
+        liveRow('DLV-00047','Madina → Osu','assigned','Kojo O.','GHS 28','12 min') +
+        liveRow('DLV-00046','Kasoa → Accra','en_route','Esi D.','GHS 68','18 min') +
+        liveRow('DLV-00445','Lapaz → Circle','searching','—','GHS 18','—') +
+      '</div>' +
+    '</div>' +
+
+    // Right col: alerts + platform health
+    '<div style="display:flex;flex-direction:column;gap:14px">' +
+      '<div class="card">' +
+        '<div class="card-hd"><div class="card-title">Alerts requiring action</div><span class="chip red">4 open</span></div>' +
+        '<div style="padding:2px 0">' +
+          alertRow('ti-id-badge','amber','KYC pending','5 drivers awaiting identity verification','kyc') +
+          alertRow('ti-alert-triangle','red','Dispute opened','Customer: package not delivered — DLV-00431','disputes') +
+          alertRow('ti-clock','amber','No driver found','DLV-00442 — Kasoa area, no drivers in 15 min','bookings') +
+          alertRow('ti-alert-circle','red','Failed payment','Charge failed for DLV-00440 — GHS 45','payments') +
+        '</div>' +
+      '</div>' +
+      '<div class="card">' +
+        '<div class="card-hd"><div class="card-title">Platform health</div><span class="chip green">All systems ✓</span></div>' +
+        '<div class="card-bd" style="padding:12px 18px;display:grid;gap:8px">' +
+          healthRow('API response time','142ms','99.8%','var(--green)') +
+          healthRow('Driver matching','380ms','100%','var(--green)') +
+          healthRow('Payment gateway','OK','Paystack live','var(--green)') +
+          healthRow('SMS delivery','98.4%','Africa\'s Talking','var(--green)') +
+          healthRow('Uptime (30d)','99.7%','2.6h downtime','var(--green)') +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  // Row 3
+  '<div class="grid3">' +
+    // Hourly activity
+    '<div class="card">' +
+      '<div class="card-hd"><div class="card-title">Hourly trips (today)</div></div>' +
+      '<div class="card-bd">' + hourlyChart() + '</div>' +
+    '</div>' +
+
+    // City breakdown
+    '<div class="card">' +
+      '<div class="card-hd"><div class="card-title">Trips by area</div><span class="chip gray fs11">Today</span></div>' +
+      '<div class="card-bd">' +
+        barH('Accra Central','142 trips','72') +
+        barH('Osu / Cantonments','68 trips','35') +
+        barH('East Legon','54 trips','28') +
+        barH('Madina','38 trips','20') +
+        barH('Tema','22 trips','11') +
+        barH('Kasoa','14 trips','7') +
+      '</div>' +
+    '</div>' +
+
+    // Recent registrations
+    '<div class="card">' +
+      '<div class="card-hd"><div class="card-title">New today</div></div>' +
+      '<div class="card-bd" style="display:grid;gap:10px">' +
+        newRegRow('av-blue','AK','Ama Kuffour','Customer','2 min ago') +
+        newRegRow('av-amber','KA','Kwame Asante','Driver · pending KYC','12 min ago') +
+        newRegRow('av-green','EO','Esi Owusu','Customer','28 min ago') +
+        newRegRow('av-purple','AF','Accra Foods','Corporate','1 hr ago') +
+        newRegRow('av-blue','BM','Bernard Mensah','Customer','2 hr ago') +
+      '</div>' +
+    '</div>' +
+  '</div></div>';
+};
+
+function mkStat(icon, label, val, delta, dir, ibg, ic) {
+  return '<div class="stat">' +
+    '<div class="stat-icon" style="background:'+ibg+'"><i class="ti '+icon+'" style="color:'+ic+'"></i></div>' +
+    '<div class="stat-lbl">'+label+'</div>' +
+    '<div class="stat-val">'+val+'</div>' +
+    '<div class="stat-delta '+(dir==='up'?'up':dir==='down'?'down':'neu')+'">'+(dir==='up'?'<i class="ti ti-trending-up"></i>':dir==='down'?'<i class="ti ti-trending-down"></i>':'<i class="ti ti-minus"></i>')+' '+delta+'</div>' +
+  '</div>';
+}
+
+function liveRow(ref, route, status, driver, fare, eta) {
+  var statusMap = {
+    en_route:'<span class="chip blue fs11">En route</span>',
+    picked_up:'<span class="chip amber fs11">Picked up</span>',
+    assigned:'<span class="chip green fs11">Assigned</span>',
+    searching:'<span class="chip gray fs11 pulse">Searching…</span>'
+  };
+  return '<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--g100);cursor:pointer" onclick="openBookingPanel(\''+ref+'\',\''+route+'\',\''+driver+'\')">' +
+    '<div style="flex:1;min-width:0"><div class="fs13 fw6" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+route+'</div>' +
+      '<div class="fs11 muted">'+ref+' · '+driver+'</div></div>' +
+    '<div style="text-align:right;flex-shrink:0"><div>'+statusMap[status]+'</div><div class="fs11 muted mt4">'+fare+' · ETA '+eta+'</div></div>' +
+  '</div>';
+}
+
+function alertRow(icon, col, title, desc, screen) {
+  return '<div style="display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--g100);cursor:pointer" onclick="nav(\''+screen+'\')">' +
+    '<div style="width:32px;height:32px;border-radius:var(--rs);background:var(--'+col+'-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+      '<i class="ti '+icon+'" style="font-size:15px;color:var(--'+col+')"></i>' +
+    '</div>' +
+    '<div style="flex:1;min-width:0"><div class="fs13 fw6">'+title+'</div><div class="fs11 muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+desc+'</div></div>' +
+    '<i class="ti ti-chevron-right" style="color:var(--g300);font-size:14px"></i>' +
+  '</div>';
+}
+
+function healthRow(label, val, detail, color) {
+  return '<div style="display:flex;align-items:center;justify-content:space-between">' +
+    '<div class="fs13 muted">'+label+'</div>' +
+    '<div style="text-align:right"><span style="color:'+color+';font-weight:600;font-size:13px">'+val+'</span> <span class="fs11 muted">'+detail+'</span></div>' +
+  '</div>';
+}
+
+function hourlyChart() {
+  var vals = [2,5,12,18,24,30,38,44,48,42,36,28,32,40,46,52,58,48,38,28,20,14,8,4];
+  var max = 58;
+  var html = '<div style="display:flex;align-items:flex-end;gap:3px;height:80px">';
+  vals.forEach(function(v,i) {
+    var pct = Math.round(v/max*100);
+    var active = i >= 8 && i <= 17;
+    html += '<div style="flex:1;height:'+pct+'%;background:'+(active?'var(--brand)':'var(--g200)')+';border-radius:2px 2px 0 0;transition:height 0.5s;cursor:pointer;position:relative" title="'+v+' trips at '+(i<12?i+'am':i===12?'12pm':(i-12)+'pm')+'">' +
+      (v === 58 ? '<div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:var(--brand);white-space:nowrap">Peak</div>' : '') +
+    '</div>';
+  });
+  html += '</div><div style="display:flex;justify-content:space-between;margin-top:6px">';
+  ['12am','6am','12pm','6pm','11pm'].forEach(function(l) { html += '<span style="font-size:10px;color:var(--g400)">'+l+'</span>'; });
+  return html + '</div>';
+}
+
+function barH(label, val, pct) {
+  return '<div class="bar-h"><div class="bar-h-label">'+label+'</div><div class="bar-h-track"><div class="bar-h-fill" style="width:'+pct+'%"></div></div><div class="bar-h-val">'+val+'</div></div>';
+}
+
+function newRegRow(avCls, initials, name, role, time) {
+  return '<div style="display:flex;align-items:center;gap:10px">' +
+    '<div class="avatar '+avCls+'">'+initials+'</div>' +
+    '<div style="flex:1"><div class="fs13 fw6">'+name+'</div><div class="fs11 muted">'+role+'</div></div>' +
+    '<div class="fs11 muted">'+time+'</div>' +
+  '</div>';
+}
+
+// ── ANALYTICS ─────────────────────────────────────────────────────────────
+screens['analytics'] = function() {
+  return '<div class="fade">' +
+  '<div class="flex gap8 mb20">' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 28px 7px 10px"><option>Last 30 days</option><option>Last 7 days</option><option>This month</option><option>Custom</option></select>' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 28px 7px 10px"><option>All areas</option><option>Accra Central</option><option>East Legon</option><option>Tema</option></select>' +
+    '<button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export report</button>' +
+  '</div>' +
+  '<div class="stat-grid mb20">' +
+    mkStat('ti-package','Total bookings (30d)','4,842','+12% vs prev period','up','var(--brand-light)','var(--brand)') +
+    mkStat('ti-check','Completion rate','96.4%','-0.3pp vs prev period','down','var(--green-light)','var(--green)') +
+    mkStat('ti-currency','Gross payment (GHS)','141,800','+9% vs prev period','up','var(--purple-light)','var(--purple)') +
+    mkStat('ti-clock','Avg delivery time','21 min','-2 min improved','up','var(--teal-light)','var(--teal)') +
+  '</div>' +
+  '<div class="grid2 mb20">' +
+    '<div class="card">' +
+      '<div class="card-hd"><div class="card-title">Daily bookings — last 30 days</div><span class="chip blue">Bookings</span></div>' +
+      '<div class="card-bd">' + dailyChart() + '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-hd"><div class="card-title">Vehicle type breakdown</div></div>' +
+      '<div class="card-bd">' +
+        '<div style="display:flex;gap:24px;margin-bottom:16px">' +
+          donutSegment('Motorbike','62%','var(--brand)') +
+          donutSegment('Car','28%','var(--teal)') +
+          donutSegment('Van','10%','var(--amber)') +
+        '</div>' +
+        barH('Motorbike','3,002 trips','62') +
+        barH('Car','1,356 trips','28') +
+        barH('Van','484 trips','10') +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+  '<div class="grid3">' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Payment methods</div></div><div class="card-bd">' +
+      barH('MTN MoMo','54%','54') +
+      barH('Vodafone Cash','22%','22') +
+      barH('Card','19%','19') +
+      barH('Cash','5%','5') +
+    '</div></div>' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Driver performance</div></div><div class="card-bd">' +
+      barH('5 stars','64% of trips','64') +
+      barH('4 stars','28% of trips','28') +
+      barH('3 stars','6% of trips','6') +
+      barH('1–2 stars','2% of trips','2') +
+    '</div></div>' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Cancellation reasons</div></div><div class="card-bd">' +
+      barH('No driver found','48%','48') +
+      barH('Customer cancelled','32%','32') +
+      barH('Driver cancelled','14%','14') +
+      barH('Payment failed','6%','6') +
+    '</div></div>' +
+  '</div></div>';
+};
+
+function dailyChart() {
+  var vals = [28,35,42,38,45,52,48,55,62,58,64,70,68,74,80,78,84,90,86,92,88,95,100,96,104,98,106,112,108,115];
+  var max = 115;
+  var html = '<div style="display:flex;align-items:flex-end;gap:2px;height:90px">';
+  vals.forEach(function(v,i) {
+    var pct = Math.round(v/max*100);
+    html += '<div style="flex:1;height:'+pct+'%;background:var(--brand);border-radius:2px 2px 0 0;opacity:'+(0.4+pct/140).toFixed(2)+'" title="Day '+(i+1)+': '+v+' bookings"></div>';
+  });
+  html += '</div><div style="display:flex;justify-content:space-between;margin-top:6px"><span class="fs11 muted">Dec 1</span><span class="fs11 muted">Dec 15</span><span class="fs11 muted">Dec 30</span></div>';
+  return html;
+}
+
+function donutSegment(label, pct, color) {
+  return '<div style="text-align:center"><div style="width:56px;height:56px;border-radius:50%;background:conic-gradient('+color+' 0% '+pct+',var(--g100) '+pct+' 100%);margin:0 auto 6px;display:flex;align-items:center;justify-content:center">' +
+    '<div style="width:36px;height:36px;border-radius:50%;background:var(--surface)"></div></div>' +
+    '<div class="fs13 fw6">'+pct+'</div><div class="fs11 muted">'+label+'</div></div>';
+}
+
+// ── LIVE MAP ───────────────────────────────────────────────────────────────
+screens['live-map'] = function() {
+  return '<div class="fade">' +
+  '<div class="flex gap12 items-center mb16">' +
+    '<div class="flex gap8">' +
+      '<span class="chip green"><i class="ti ti-circle-filled" style="font-size:8px"></i> 32 on trip</span>' +
+      '<span class="chip amber">15 idle</span>' +
+      '<span class="chip gray">8 offline</span>' +
+      '<span class="chip blue">12 active orders</span>' +
+    '</div>' +
+    '<div style="margin-left:auto;display:flex;gap:8px">' +
+      '<select class="fi fi-sel" style="width:auto;padding:6px 24px 6px 10px;font-size:12px"><option>All vehicle types</option><option>Motorbike</option><option>Car</option><option>Van</option></select>' +
+      '<button class="btn btn-ghost btn-sm"><i class="ti ti-refresh"></i> Refresh</button>' +
+    '</div>' +
+  '</div>' +
+  '<div class="card">' +
+    '<div id="map-container" style="position:relative;height:480px;background:#D4E8D4;overflow:hidden;border-radius:var(--r)">' +
+      buildFullMap() +
+    '</div>' +
+  '</div>' +
+  '<div class="grid3 mt12">' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Hotspot areas</div></div><div class="card-bd">' +
+      barH('Accra Central','24 active','80') +
+      barH('Osu','12 active','40') +
+      barH('East Legon','8 active','27') +
+    '</div></div>' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Driver availability</div></div><div class="card-bd">' +
+      barH('Motorbike','28 drivers','70') +
+      barH('Car','14 drivers','35') +
+      barH('Van','5 drivers','13') +
+    '</div></div>' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Response times</div></div><div class="card-bd">' +
+      barH('< 2 min match','68%','68') +
+      barH('2–5 min match','24%','24') +
+      barH('> 5 min','8%','8') +
+    '</div></div>' +
+  '</div></div>';
+};
+
+function buildFullMap() {
+  var roads = [
+    {left:'0',top:'48%',width:'100%',height:'10px'},
+    {left:'0',top:'28%',width:'100%',height:'7px'},
+    {left:'0',top:'68%',width:'100%',height:'7px'},
+    {left:'22%',top:'0',width:'8px',height:'100%'},
+    {left:'48%',top:'0',width:'10px',height:'100%'},
+    {left:'72%',top:'0',width:'8px',height:'100%'},
+  ];
+  var html = roads.map(function(r) {
+    return '<div style="position:absolute;background:rgba(255,255,255,0.65);border-radius:2px;left:'+r.left+';top:'+r.top+';width:'+r.width+';height:'+r.height+'"></div>';
+  }).join('');
+
+  var areas = [
+    {x:'2%',y:'2%',text:'Kasoa'},
+    {x:'24%',y:'2%',text:'Lapaz'},
+    {x:'50%',y:'2%',text:'Achimota'},
+    {x:'74%',y:'2%',text:'Madina'},
+    {x:'2%',y:'44%',text:'Dansoman'},
+    {x:'24%',y:'44%',text:'Accra Central'},
+    {x:'50%',y:'44%',text:'Osu'},
+    {x:'74%',y:'44%',text:'East Legon'},
+    {x:'24%',y:'72%',text:'Tema'},
+    {x:'50%',y:'72%',text:'Airport Res.'},
+  ];
+  html += areas.map(function(a) {
+    return '<div style="position:absolute;left:'+a.x+';top:'+a.y+';font-size:10px;color:rgba(0,0,0,0.5);font-weight:600;background:rgba(255,255,255,0.5);padding:1px 5px;border-radius:3px">'+a.text+'</div>';
+  }).join('');
+
+  var drivers = [
+    {x:'28%',y:'46%',status:'busy',id:'DRV-01',name:'Kwame A.'},
+    {x:'52%',y:'50%',status:'busy',id:'DRV-02',name:'Yaa M.'},
+    {x:'35%',y:'32%',status:'idle',id:'DRV-03',name:'Kojo O.'},
+    {x:'60%',y:'42%',status:'busy',id:'DRV-04',name:'Esi D.'},
+    {x:'18%',y:'55%',status:'idle',id:'DRV-05',name:'Abena F.'},
+    {x:'76%',y:'38%',status:'busy',id:'DRV-06',name:'Kofi A.'},
+    {x:'45%',y:'26%',status:'idle',id:'DRV-07',name:'Adjoa K.'},
+    {x:'66%',y:'58%',status:'busy',id:'DRV-08',name:'Samuel O.'},
+    {x:'30%',y:'70%',status:'offline',id:'DRV-09',name:'Ama B.'},
+    {x:'55%',y:'70%',status:'idle',id:'DRV-10',name:'Kwesi N.'},
+    {x:'80%',y:'60%',status:'busy',id:'DRV-11',name:'Efua P.'},
+    {x:'12%',y:'35%',status:'idle',id:'DRV-12',name:'Nana O.'},
+  ];
+
+  html += '<div id="driver-dots">' + drivers.map(function(d) {
+    var color = d.status==='busy'?'var(--brand)':d.status==='idle'?'var(--green)':'var(--g400)';
+    return '<div class="map-dot driver" id="dot-'+d.id+'" data-status="'+d.status+'" style="left:'+d.x+';top:'+d.y+';background:'+color+'" title="'+d.name+' ('+d.status+')" onclick="showDriverTooltip(\''+d.id+'\',\''+d.name+'\',\''+d.status+'\')"></div>';
+  }).join('') + '</div>';
+
+  html += '<div class="map-legend">' +
+    '<div class="map-legend-row"><div class="map-legend-dot" style="background:var(--brand)"></div><span class="fs11">On trip (32)</span></div>' +
+    '<div class="map-legend-row"><div class="map-legend-dot" style="background:var(--green)"></div><span class="fs11">Available (15)</span></div>' +
+    '<div class="map-legend-row"><div class="map-legend-dot" style="background:var(--g400)"></div><span class="fs11">Offline (8)</span></div>' +
+  '</div>';
+
+  html += '<div id="driver-tooltip" style="display:none;position:absolute;background:var(--g800);color:#fff;padding:8px 12px;border-radius:var(--rs);font-size:12px;pointer-events:none;z-index:10"></div>';
+
+  return html;
+}
+
+function initLiveMap() {
+  trackingInterval = setInterval(function() {
+    var dots = document.querySelectorAll('.map-dot.driver');
+    dots.forEach(function(dot) {
+      if(dot.getAttribute('data-status') === 'busy') {
+        var x = parseFloat(dot.style.left) + (Math.random()-0.5)*1.5;
+        var y = parseFloat(dot.style.top) + (Math.random()-0.5)*1.5;
+        x = Math.max(2, Math.min(92, x));
+        y = Math.max(2, Math.min(90, y));
+        dot.style.left = x.toFixed(1) + '%';
+        dot.style.top = y.toFixed(1) + '%';
+      }
+    });
+  }, 2000);
+}
+
+function showDriverTooltip(id, name, status) {
+  var dot = document.getElementById('dot-'+id);
+  var tip = document.getElementById('driver-tooltip');
+  if(!dot || !tip) return;
+  var statusLabel = {busy:'On trip',idle:'Available',offline:'Offline'}[status] || status;
+  tip.innerHTML = '<strong>'+name+'</strong><br>'+id+' · '+statusLabel;
+  tip.style.display = 'block';
+  tip.style.left = (parseFloat(dot.style.left)+2)+'%';
+  tip.style.top = (parseFloat(dot.style.top)+2)+'%';
+  setTimeout(function(){ tip.style.display='none'; }, 3000);
+}
+
+// ── BOOKINGS ──────────────────────────────────────────────────────────────
+screens['bookings'] = function() {
+  var bookingData = [
+    {ref:'DLV-00449',route:'Ring Road → Osu',customer:'Ama K.',driver:'Kwame A.',vehicle:'🏍️',fare:'GHS 22',status:'en_route',time:'2:15pm',payment:'MoMo'},
+    {ref:'DLV-00448',route:'East Legon → Tema',customer:'Kofi B.',driver:'Yaa M.',vehicle:'🚗',fare:'GHS 45',status:'picked_up',time:'2:08pm',payment:'Card'},
+    {ref:'DLV-00447',route:'Madina Mkt → Osu',customer:'Corp: Accra Foods',driver:'Kojo O.',vehicle:'🏍️',fare:'GHS 28',status:'assigned',time:'2:05pm',payment:'MoMo'},
+    {ref:'DLV-00446',route:'Kasoa → Accra Central',customer:'Adjoa M.',driver:'Searching…',vehicle:'🚐',fare:'GHS 68',status:'searching',time:'1:58pm',payment:'MoMo'},
+    {ref:'DLV-00445',route:'Osu → Airport Res.',customer:'Samuel O.',driver:'Esi D.',vehicle:'🏍️',fare:'GHS 18',status:'delivered',time:'1:42pm',payment:'Cash'},
+    {ref:'DLV-00444',route:'Accra Mall → Madina',customer:'Nana A.',driver:'Abena F.',vehicle:'🚗',fare:'GHS 38',status:'delivered',time:'1:30pm',payment:'Card'},
+    {ref:'DLV-00443',route:'Circle → Dansoman',customer:'Kwesi N.',driver:'Kofi A.',vehicle:'🏍️',fare:'GHS 15',status:'cancelled',time:'1:20pm',payment:'MoMo'},
+    {ref:'DLV-00442',route:'Lapaz → Achimota',customer:'Ama B.',driver:'—',vehicle:'🏍️',fare:'GHS 18',status:'failed',time:'1:10pm',payment:'MoMo'},
+  ];
+
+  var statusChip = function(s) {
+    var m = {
+      en_route:'<span class="chip blue">En route</span>',
+      picked_up:'<span class="chip amber">Picked up</span>',
+      assigned:'<span class="chip teal">Assigned</span>',
+      searching:'<span class="chip gray pulse">Searching</span>',
+      delivered:'<span class="chip green">Delivered</span>',
+      cancelled:'<span class="chip red">Cancelled</span>',
+      failed:'<span class="chip red">Failed</span>'
+    };
+    return m[s] || s;
+  };
+
+  var rows = bookingData.map(function(b) {
+    return '<tr>' +
+      '<td><span class="fw6">'+b.ref+'</span></td>' +
+      '<td>'+b.vehicle+' '+b.route+'</td>' +
+      '<td>'+b.customer+'</td>' +
+      '<td>'+b.driver+'</td>' +
+      '<td>'+statusChip(b.status)+'</td>' +
+      '<td><strong>'+b.fare+'</strong></td>' +
+      '<td><span class="tag">'+b.payment+'</span></td>' +
+      '<td class="muted fs12">'+b.time+'</td>' +
+      '<td><button class="btn btn-ghost btn-xs" onclick="openBookingPanel(\''+b.ref+'\',\''+b.route+'\',\''+b.driver+'\')"><i class="ti ti-eye"></i> View</button></td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div class="fade"><div class="flex gap8 mb16 items-center">' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 24px 7px 10px"><option>All statuses</option><option>Live</option><option>Delivered</option><option>Failed</option></select>' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 24px 7px 10px"><option>All vehicles</option><option>Motorbike</option><option>Car</option><option>Van</option></select>' +
+    '<input class="fi" placeholder="Search reference, route, driver…" style="max-width:260px">' +
+    '<div style="margin-left:auto;display:flex;gap:8px">' +
+      '<button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button>' +
+    '</div>' +
+  '</div>' +
+  '<div class="card"><div style="overflow-x:auto"><table class="tbl"><thead>' +
+    '<tr><th>Reference</th><th>Route</th><th>Customer</th><th>Driver</th><th>Status</th><th>Fare</th><th>Payment</th><th>Time</th><th></th></tr>' +
+  '</thead><tbody>'+rows+'</tbody></table></div></div></div>';
+};
+
+// ── DRIVERS ───────────────────────────────────────────────────────────────
+screens['drivers'] = function() {
+  var drivers = [
+    {id:'DRV-001',name:'Kwame Asante',phone:'+233 24 567 8900',vehicle:'🏍️ Motorbike',status:'online',kyc:'verified',trips:312,rating:4.9,earned:'GHS 9,840',sms:false},
+    {id:'DRV-002',name:'Yaa Mensah',phone:'+233 20 345 6789',vehicle:'🚗 Car',status:'online',kyc:'verified',trips:228,rating:4.8,earned:'GHS 8,200',sms:false},
+    {id:'DRV-003',name:'Kojo Owusu',phone:'+233 27 890 1234',vehicle:'🏍️ Motorbike',status:'online',kyc:'verified',trips:401,rating:5.0,earned:'GHS 12,300',sms:false},
+    {id:'DRV-004',name:'Esi Duodu',phone:'+233 24 111 2222',vehicle:'🚐 Van',status:'offline',kyc:'verified',trips:156,rating:4.7,earned:'GHS 7,800',sms:false},
+    {id:'DRV-005',name:'Kofi Acheampong',phone:'+233 26 555 7890',vehicle:'🏍️ Motorbike',status:'online',kyc:'verified',trips:88,rating:4.6,earned:'GHS 2,640',sms:true},
+    {id:'DRV-006',name:'Abena Frimpong',phone:'+233 20 999 8888',vehicle:'🚗 Car',status:'offline',kyc:'pending',trips:0,rating:0,earned:'GHS 0',sms:false},
+    {id:'DRV-007',name:'Bernard Mensah',phone:'+233 54 333 4444',vehicle:'🏍️ Motorbike',status:'online',kyc:'pending',trips:0,rating:0,earned:'GHS 0',sms:true},
+  ];
+
+  var rows = drivers.map(function(d) {
+    var sc = d.status==='online'?'green':'gray';
+    var kc = d.kyc==='verified'?'green':d.kyc==='pending'?'amber':'red';
+    return '<tr>' +
+      '<td><div class="flex items-center gap8"><div class="avatar av-amber" style="font-size:11px">'+d.name.split(' ').map(function(n){return n[0];}).join('')+'</div><div><div class="fw6 fs13">'+d.name+'</div><div class="fs11 muted">'+d.phone+'</div></div></div></td>' +
+      '<td>'+d.vehicle+(d.sms?' <span class="chip amber fs11" style="padding:1px 6px">SMS</span>':'')+'</td>' +
+      '<td><span class="chip '+sc+'">'+d.status+'</span></td>' +
+      '<td><span class="chip '+kc+'">'+d.kyc+'</span></td>' +
+      '<td class="fw6">'+d.trips+'</td>' +
+      '<td>'+(d.rating>0?'⭐ '+d.rating:'—')+'</td>' +
+      '<td class="fw6">'+d.earned+'</td>' +
+      '<td>' +
+        '<button class="btn btn-ghost btn-xs" onclick="openDriverPanel(\''+d.id+'\',\''+d.name+'\',\''+d.kyc+'\')"><i class="ti ti-eye"></i> View</button> ' +
+        (d.kyc==='pending'?'<button class="btn btn-ghost btn-xs txt-brand" onclick="openKYCModal(\''+d.id+'\',\''+d.name+'\')"><i class="ti ti-id-badge"></i> KYC</button>':'') +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div class="fade"><div class="flex gap8 mb16 items-center">' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 24px 7px 10px"><option>All statuses</option><option>Online</option><option>Offline</option></select>' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 24px 7px 10px"><option>All vehicles</option><option>Motorbike</option><option>Car</option><option>Van</option></select>' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 24px 7px 10px"><option>All KYC</option><option>Verified</option><option>Pending</option></select>' +
+    '<input class="fi" placeholder="Search by name, phone, ID…" style="max-width:240px">' +
+    '<div style="margin-left:auto"><button class="btn btn-primary btn-sm"><i class="ti ti-user-plus"></i> Add driver</button></div>' +
+  '</div>' +
+  '<div class="card"><div style="overflow-x:auto"><table class="tbl"><thead>' +
+    '<tr><th>Driver</th><th>Vehicle</th><th>Status</th><th>KYC</th><th>Trips</th><th>Rating</th><th>Earned</th><th>Actions</th></tr>' +
+  '</thead><tbody>'+rows+'</tbody></table></div></div></div>';
+};
+
+// ── CUSTOMERS ─────────────────────────────────────────────────────────────
+screens['customers'] = function() {
+  var customers = [
+    {id:'USR-001',name:'Ama Kuffour',phone:'+233 24 567 8901',type:'Individual',joined:'Dec 1, 2024',trips:24,spent:'GHS 342',status:'active'},
+    {id:'USR-002',name:'Kofi Boateng',phone:'+233 20 123 4567',type:'Individual',joined:'Nov 28, 2024',trips:8,spent:'GHS 124',status:'active'},
+    {id:'USR-003',name:'Adjoa Mensah',phone:'+233 27 345 6789',type:'Individual',joined:'Nov 15, 2024',trips:42,spent:'GHS 610',status:'active'},
+    {id:'USR-004',name:'Samuel Osei',phone:'+233 24 999 0000',type:'Individual',joined:'Oct 20, 2024',trips:3,spent:'GHS 55',status:'active'},
+    {id:'USR-005',name:'Nana Asante',phone:'+233 20 888 7777',type:'Individual',joined:'Sep 5, 2024',trips:0,spent:'GHS 0',status:'inactive'},
+  ];
+
+  var rows = customers.map(function(c) {
+    return '<tr>' +
+      '<td><div class="flex items-center gap8"><div class="avatar av-blue" style="font-size:11px">'+c.name.split(' ').map(function(n){return n[0];}).join('')+'</div><div><div class="fw6 fs13">'+c.name+'</div><div class="fs11 muted">'+c.id+'</div></div></div></td>' +
+      '<td>'+c.phone+'</td>' +
+      '<td><span class="chip blue">'+c.type+'</span></td>' +
+      '<td class="muted fs12">'+c.joined+'</td>' +
+      '<td class="fw6">'+c.trips+'</td>' +
+      '<td class="fw6">'+c.spent+'</td>' +
+      '<td><span class="chip '+(c.status==='active'?'green':'gray')+'">'+c.status+'</span></td>' +
+      '<td>' +
+        '<button class="btn btn-ghost btn-xs" onclick="openModal(\'suspend-user\',\''+c.name+'\')"><i class="ti ti-eye"></i> View</button> ' +
+        '<button class="btn btn-ghost btn-xs txt-red" onclick="openModal(\'suspend-user\',\''+c.name+'\')"><i class="ti ti-ban"></i> Suspend</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div class="fade"><div class="flex gap8 mb16 items-center">' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 24px 7px 10px"><option>All statuses</option><option>Active</option><option>Inactive</option><option>Suspended</option></select>' +
+    '<input class="fi" placeholder="Search by name or phone…" style="max-width:260px">' +
+    '<div style="margin-left:auto"><button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button></div>' +
+  '</div>' +
+  '<div class="card"><div style="overflow-x:auto"><table class="tbl"><thead>' +
+    '<tr><th>Customer</th><th>Phone</th><th>Type</th><th>Joined</th><th>Trips</th><th>Spent</th><th>Status</th><th>Actions</th></tr>' +
+  '</thead><tbody>'+rows+'</tbody></table></div></div></div>';
+};
+
+// ── CORPORATES ────────────────────────────────────────────────────────────
+screens['corporates'] = function() {
+  var corps = [
+    {id:'CRP-001',name:'Accra Foods Ltd',contact:'logistics@accrafoods.gh',fleet:12,trips:148,spend:'GHS 4,320',plan:'Business',credit:true,status:'active'},
+    {id:'CRP-002',name:'Melcom Group',contact:'delivery@melcom.com.gh',fleet:8,trips:92,spend:'GHS 2,680',plan:'Starter',credit:false,status:'active'},
+    {id:'CRP-003',name:'Printex Ghana',contact:'logistics@printex.gh',fleet:4,trips:44,spend:'GHS 1,280',plan:'Free',credit:false,status:'active'},
+    {id:'CRP-004',name:'Ashfoam Ghana',contact:'ops@ashfoam.com',fleet:0,trips:12,spend:'GHS 350',plan:'Free',credit:false,status:'trial'},
+  ];
+
+  var rows = corps.map(function(c) {
+    var pc = c.plan==='Business'?'purple':c.plan==='Starter'?'blue':'gray';
+    return '<tr>' +
+      '<td><div class="flex items-center gap8"><div class="avatar av-purple" style="font-size:11px">'+c.name.split(' ').map(function(n){return n[0];}).join('').slice(0,2)+'</div><div><div class="fw6 fs13">'+c.name+'</div><div class="fs11 muted">'+c.id+'</div></div></div></td>' +
+      '<td class="fs12 muted">'+c.contact+'</td>' +
+      '<td class="fw6 fs13">'+c.fleet+' drivers</td>' +
+      '<td class="fw6">'+c.trips+'</td>' +
+      '<td class="fw6 txt-brand">'+c.spend+'</td>' +
+      '<td><span class="chip '+pc+'">'+c.plan+'</span></td>' +
+      '<td><span class="chip '+(c.credit?'green':'gray')+'">'+(c.credit?'Enabled':'Disabled')+'</span></td>' +
+      '<td><span class="chip '+(c.status==='active'?'green':'amber')+'">'+c.status+'</span></td>' +
+      '<td><button class="btn btn-ghost btn-xs"><i class="ti ti-eye"></i> View</button></td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div class="fade"><div class="flex gap8 mb16 items-center">' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 24px 7px 10px"><option>All plans</option><option>Business</option><option>Starter</option><option>Free</option></select>' +
+    '<input class="fi" placeholder="Search corporate name…" style="max-width:240px">' +
+    '<div style="margin-left:auto"><button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Add corporate</button></div>' +
+  '</div>' +
+  '<div class="card"><div style="overflow-x:auto"><table class="tbl"><thead>' +
+    '<tr><th>Company</th><th>Contact</th><th>Fleet</th><th>Trips (mo)</th><th>Spend (mo)</th><th>Plan</th><th>Credit</th><th>Status</th><th></th></tr>' +
+  '</thead><tbody>'+rows+'</tbody></table></div></div></div>';
+};
+
+// ── PAYMENTS ──────────────────────────────────────────────────────────────
+screens['payments'] = function() {
+  var payments = [
+    {ref:'PAY-00449',booking:'DLV-00449',amount:'GHS 22.00',method:'MTN MoMo',status:'escrow',time:'2:15pm'},
+    {ref:'PAY-00448',booking:'DLV-00448',amount:'GHS 45.00',method:'Visa ··4242',status:'released',time:'2:08pm'},
+    {ref:'PAY-00447',booking:'DLV-00447',amount:'GHS 28.00',method:'MTN MoMo',status:'released',time:'1:58pm'},
+    {ref:'PAY-00446',booking:'DLV-00446',amount:'GHS 68.00',method:'Vodafone Cash',status:'pending',time:'1:50pm'},
+    {ref:'PAY-00445',booking:'DLV-00445',amount:'GHS 18.00',method:'Cash',status:'released',time:'1:42pm'},
+    {ref:'PAY-00440',booking:'DLV-00440',amount:'GHS 45.00',method:'MTN MoMo',status:'failed',time:'1:10pm'},
+  ];
+
+  var sc = {escrow:'amber',released:'green',pending:'gray',failed:'red'};
+  var rows = payments.map(function(p) {
+    return '<tr>' +
+      '<td class="fw6">'+p.ref+'</td>' +
+      '<td>'+p.booking+'</td>' +
+      '<td class="fw6">'+p.amount+'</td>' +
+      '<td><span class="tag">'+p.method+'</span></td>' +
+      '<td><span class="chip '+sc[p.status]+'">'+p.status+'</span></td>' +
+      '<td class="muted fs12">'+p.time+'</td>' +
+      '<td>' +
+        (p.status==='failed'?'<button class="btn btn-ghost btn-xs txt-brand"><i class="ti ti-refresh"></i> Retry</button>':'') +
+        (p.status==='escrow'?'<button class="btn btn-ghost btn-xs"><i class="ti ti-eye"></i> View</button>':'') +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div class="fade"><div class="stat-grid mb16">' +
+    mkStat('ti-cash','Total processed today','GHS 8,240','+6% vs yesterday','up','var(--green-light)','var(--green)') +
+    mkStat('ti-clock','In escrow','GHS 1,240','12 bookings pending','neu','var(--amber-light)','var(--amber)') +
+    mkStat('ti-alert-circle','Failed today','GHS 142','2 transactions','down','var(--red-light)','var(--red)') +
+    mkStat('ti-wallet','Driver payouts today','GHS 7,000','Avg GHS 175 / driver','neu','var(--brand-light)','var(--brand)') +
+  '</div>' +
+  '<div class="card"><div class="card-hd"><div class="card-title">Transaction log</div>' +
+    '<div class="flex gap8"><select class="fi fi-sel" style="width:auto;padding:6px 22px 6px 10px;font-size:12px"><option>All methods</option><option>MTN MoMo</option><option>Vodafone</option><option>Card</option><option>Cash</option></select>' +
+    '<button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button></div>' +
+  '</div>' +
+  '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Payment ref</th><th>Booking</th><th>Amount</th><th>Method</th><th>Status</th><th>Time</th><th></th></tr></thead>' +
+  '<tbody>'+rows+'</tbody></table></div></div></div>';
+};
+
+// ── PAYOUTS ───────────────────────────────────────────────────────────────
+screens['payouts'] = function() {
+  var payouts = [
+    {driver:'Kwame Asante',amount:'GHS 200.00',to:'MTN ···8900',status:'completed',time:'9:00am'},
+    {driver:'Kojo Owusu',amount:'GHS 350.00',to:'Vodafone ···1234',status:'completed',time:'8:45am'},
+    {driver:'Yaa Mensah',amount:'GHS 120.00',to:'MTN ···6789',status:'processing',time:'2:30pm'},
+    {driver:'Esi Duodu',amount:'GHS 80.00',to:'AirtelTigo ···2222',status:'processing',time:'2:28pm'},
+    {driver:'Kofi Acheampong',amount:'GHS 55.00',to:'MTN ···7890',status:'pending',time:'Requested'},
+  ];
+  var rows = payouts.map(function(p) {
+    var sc = p.status==='completed'?'green':p.status==='processing'?'blue':'amber';
+    return '<tr><td class="fw6">'+p.driver+'</td><td class="fw6 txt-green">'+p.amount+'</td><td><span class="tag">'+p.to+'</span></td>' +
+      '<td><span class="chip '+sc+'">'+p.status+'</span></td><td class="muted fs12">'+p.time+'</td>' +
+      '<td>'+(p.status==='pending'?'<button class="btn btn-primary btn-xs" onclick="toast(\'Payout approved\',\'success\')">Approve</button>':'')+'</td></tr>';
+  }).join('');
+
+  return '<div class="fade"><div class="stat-grid mb16">' +
+    mkStat('ti-wallet','Total payouts today','GHS 7,000','40 transactions','neu','var(--green-light)','var(--green)') +
+    mkStat('ti-clock','Processing','GHS 200','2 pending','neu','var(--amber-light)','var(--amber)') +
+    mkStat('ti-users','Drivers paid today','40','Out of 47 active','neu','var(--brand-light)','var(--brand)') +
+    mkStat('ti-check','Success rate','100%','No failed payouts','up','var(--teal-light)','var(--teal)') +
+  '</div>' +
+  '<div class="card"><div style="overflow-x:auto"><table class="tbl"><thead>' +
+    '<tr><th>Driver</th><th>Amount</th><th>To account</th><th>Status</th><th>Time</th><th></th></tr>' +
+  '</thead><tbody>'+rows+'</tbody></table></div></div></div>';
+};
+
+// ── KYC ───────────────────────────────────────────────────────────────────
+screens['kyc'] = function() {
+  var pending = [
+    {id:'DRV-006',name:'Abena Frimpong',phone:'+233 20 999 8888',vehicle:'Car',submitted:'2 hr ago',sms:false,
+     checks:{ghana_card:'uploaded',license:'uploaded',vehicle_reg:'uploaded',insurance:'missing'}},
+    {id:'DRV-007',name:'Bernard Mensah',phone:'+233 54 333 4444',vehicle:'Motorbike',submitted:'4 hr ago',sms:true,
+     checks:{ghana_card:'uploaded',license:'uploaded',vehicle_reg:'missing',insurance:'missing'}},
+    {id:'DRV-008',name:'Efua Paintsil',phone:'+233 24 777 6655',vehicle:'Motorbike',submitted:'6 hr ago',sms:false,
+     checks:{ghana_card:'uploaded',license:'uploaded',vehicle_reg:'uploaded',insurance:'uploaded'}},
+    {id:'DRV-009',name:'Nana Ofori',phone:'+233 20 444 3322',vehicle:'Van',submitted:'8 hr ago',sms:false,
+     checks:{ghana_card:'uploaded',license:'missing',vehicle_reg:'uploaded',insurance:'uploaded'}},
+    {id:'DRV-010',name:'Adwoa Sarpong',phone:'+233 27 111 0099',vehicle:'Car',submitted:'12 hr ago',sms:false,
+     checks:{ghana_card:'uploaded',license:'uploaded',vehicle_reg:'uploaded',insurance:'uploaded'}},
+  ];
+
+  function docsComplete(checks) {
+    return Object.values(checks).every(function(v){ return v==='uploaded'; });
+  }
+
+  var rows = pending.map(function(d) {
+    var complete = docsComplete(d.checks);
+    var docIcons = [
+      {key:'ghana_card',label:'Ghana Card',icon:'ti-id-badge'},
+      {key:'license',label:"Driver's licence",icon:'ti-license'},
+      {key:'vehicle_reg',label:'Vehicle reg.',icon:'ti-certificate'},
+      {key:'insurance',label:'Insurance',icon:'ti-shield-check'},
+    ].map(function(doc) {
+      var ok = d.checks[doc.key]==='uploaded';
+      return '<span title="'+doc.label+'" style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;font-size:11px;color:'+(ok?'var(--green)':'var(--red)')+'">' +
+        '<i class="ti '+doc.icon+'"></i>'+(ok?'✓':'✗')+'</span>';
+    }).join('');
+    return '<tr>' +
+      '<td><div class="flex items-center gap8"><div class="avatar av-amber" style="font-size:11px">'+d.name.split(' ').map(function(n){return n[0];}).join('')+'</div>' +
+        '<div><div class="fw6 fs13">'+d.name+'</div><div class="fs11 muted">'+d.phone+'</div></div></div></td>' +
+      '<td>'+d.vehicle+(d.sms?' <span class="chip amber fs11" style="padding:1px 6px">SMS</span>':'')+'</td>' +
+      '<td>'+docIcons+'</td>' +
+      '<td class="muted fs12">'+d.submitted+'</td>' +
+      '<td><span class="chip '+(complete?'amber':'red')+'">'+(complete?'Ready to review':'Docs incomplete')+'</span></td>' +
+      '<td>' +
+        '<button class="btn btn-ghost btn-xs" onclick="openKYCModal(\''+d.id+'\',\''+d.name+'\')"><i class="ti ti-eye"></i> Review</button>' +
+        (complete ? '<button class="btn btn-success btn-xs" onclick="approveKYC(\''+d.name+'\')" style="margin-left:4px"><i class="ti ti-check"></i> Approve</button>' : '') +
+        '<button class="btn btn-danger btn-xs" onclick="rejectKYC(\''+d.name+'\')" style="margin-left:4px"><i class="ti ti-x"></i> Reject</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div class="fade">' +
+  '<div class="card mb16" style="border-color:var(--amber);background:var(--amber-light)">' +
+    '<div class="card-bd" style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between">' +
+      '<div class="flex items-center gap10"><i class="ti ti-clock" style="font-size:20px;color:var(--amber)"></i>' +
+        '<div><div class="fw6">5 drivers awaiting KYC verification</div>' +
+          '<div class="fs12 muted">All 4 documents must be uploaded before a driver can be approved to go online.</div></div>' +
+      '</div>' +
+      '<div class="flex gap8">' +
+        '<span class="chip green">3 complete</span><span class="chip red">2 missing docs</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+  '<div class="card mb16"><div class="card-hd"><div class="card-title">Required documents — onboarding checklist</div></div>' +
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--g200)">' +
+      kycDocCard('ti-id-badge','Ghana Card','var(--brand-light)','var(--brand)','Verified via Smile ID facial match. Must be valid and not expired. NIA Card accepted.','Mandatory') +
+      kycDocCard('ti-license',"Driver's licence",'var(--teal-light)','var(--teal)',"Valid Ghana DVLA driving licence. Commercial licence required for van drivers. Checked for expiry.",'Mandatory') +
+      kycDocCard('ti-certificate','Vehicle / motorbike registration','var(--purple-light)','var(--purple)','DVLA vehicle registration document. Must match vehicle type selected at signup. Checked for validity.','Mandatory') +
+      kycDocCard('ti-shield-check','Auto insurance','var(--amber-light)','var(--amber)','Valid third-party or comprehensive motor insurance covering commercial use. Drivers supply and renew independently.','Mandatory') +
+    '</div>' +
+  '</div>' +
+  '<div class="card"><div class="card-hd"><div class="card-title">Pending KYC reviews</div>' +
+    '<button class="btn btn-ghost btn-sm">View approved history <i class="ti ti-chevron-down"></i></button></div>' +
+  '<div style="overflow-x:auto"><table class="tbl"><thead>' +
+    '<tr><th>Driver</th><th>Vehicle</th><th>Documents</th><th>Submitted</th><th>Status</th><th>Actions</th></tr>' +
+  '</thead><tbody>'+rows+'</tbody></table></div></div></div>';
+};
+
+function kycDocCard(icon, label, bg, color, desc, tag) {
+  return '<div style="padding:16px;border-right:1px solid var(--g200);border-bottom:1px solid var(--g200)">' +
+    '<div style="width:36px;height:36px;border-radius:var(--rs);background:'+bg+';display:flex;align-items:center;justify-content:center;margin-bottom:8px">' +
+      '<i class="ti '+icon+'" style="font-size:16px;color:'+color+'"></i></div>' +
+    '<div class="fw6 fs13 mb4">'+label+'</div>' +
+    '<div class="fs12 muted mb6">'+desc+'</div>' +
+    '<span class="chip red" style="font-size:10px;padding:1px 7px">'+tag+'</span>' +
+  '</div>';
+}
+
+function approveKYC(name) {
+  toast('KYC approved — '+name+' can now go online', 'success');
+  nav('kyc');
+}
+function rejectKYC(name) {
+  openModal('reject-kyc', name);
+}
+
+// ── DISPUTES ──────────────────────────────────────────────────────────────
+screens['disputes'] = function() {
+  return '<div class="fade">' +
+  '<div class="grid2 mb16">' +
+    '<div class="card" style="border-left:4px solid var(--red)">' +
+      '<div class="card-bd">' +
+        '<div class="flex items-center gap10 mb12">' +
+          '<div style="width:36px;height:36px;background:var(--red-light);border-radius:var(--rs);display:flex;align-items:center;justify-content:center"><i class="ti ti-alert-triangle" style="color:var(--red)"></i></div>' +
+          '<div><div class="fw7">Dispute #DSP-001</div><div class="fs12 muted">Opened 45 min ago · DLV-00431</div></div>' +
+          '<span class="chip red" style="margin-left:auto">Open</span>' +
+        '</div>' +
+        '<div class="fs13" style="margin-bottom:12px"><strong>Customer claim:</strong> "Package was marked delivered but I never received it. The proof photo shows a wrong door."</div>' +
+        '<div class="flex gap6 mb12">' +
+          '<div style="flex:1;background:var(--g50);padding:10px;border-radius:var(--rs)"><div class="fs11 muted mb4">CUSTOMER</div><div class="fw6 fs13">Ama Kuffour</div><div class="fs12 muted">+233 24 567 8901</div></div>' +
+          '<div style="flex:1;background:var(--g50);padding:10px;border-radius:var(--rs)"><div class="fs11 muted mb4">DRIVER</div><div class="fw6 fs13">Kwame Asante</div><div class="fs12 muted">DRV-001</div></div>' +
+          '<div style="flex:1;background:var(--g50);padding:10px;border-radius:var(--rs)"><div class="fs11 muted mb4">BOOKING</div><div class="fw6 fs13">DLV-00431</div><div class="fs12 muted">GHS 28.00</div></div>' +
+        '</div>' +
+        '<div class="flex gap8">' +
+          '<button class="btn btn-success btn-sm" onclick="resolveDispute(\'customer\')"><i class="ti ti-check"></i> Refund customer</button>' +
+          '<button class="btn btn-secondary btn-sm" onclick="resolveDispute(\'driver\')"><i class="ti ti-check"></i> Favour driver</button>' +
+          '<button class="btn btn-ghost btn-sm"><i class="ti ti-message"></i> Contact both</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card" style="border-left:4px solid var(--amber)">' +
+      '<div class="card-bd">' +
+        '<div class="flex items-center gap10 mb12">' +
+          '<div style="width:36px;height:36px;background:var(--amber-light);border-radius:var(--rs);display:flex;align-items:center;justify-content:center"><i class="ti ti-alert-circle" style="color:var(--amber)"></i></div>' +
+          '<div><div class="fw7">Dispute #DSP-002</div><div class="fs12 muted">Opened 2 hr ago · DLV-00418</div></div>' +
+          '<span class="chip amber" style="margin-left:auto">In review</span>' +
+        '</div>' +
+        '<div class="fs13" style="margin-bottom:12px"><strong>Customer claim:</strong> "Driver charged me extra cash beyond the app price. Fare was GHS 28 on app but demanded GHS 40."</div>' +
+        '<div class="flex gap6 mb12">' +
+          '<div style="flex:1;background:var(--g50);padding:10px;border-radius:var(--rs)"><div class="fs11 muted mb4">CUSTOMER</div><div class="fw6 fs13">Kofi Boateng</div><div class="fs12 muted">+233 20 123 4567</div></div>' +
+          '<div style="flex:1;background:var(--g50);padding:10px;border-radius:var(--rs)"><div class="fs11 muted mb4">DRIVER</div><div class="fw6 fs13">Esi Duodu</div><div class="fs12 muted">DRV-004</div></div>' +
+          '<div style="flex:1;background:var(--g50);padding:10px;border-radius:var(--rs)"><div class="fs11 muted mb4">BOOKING</div><div class="fw6 fs13">DLV-00418</div><div class="fs12 muted">GHS 28.00</div></div>' +
+        '</div>' +
+        '<div class="flex gap8">' +
+          '<button class="btn btn-danger btn-sm" onclick="resolveDispute(\'suspend\')"><i class="ti ti-ban"></i> Warn driver</button>' +
+          '<button class="btn btn-secondary btn-sm"><i class="ti ti-message"></i> Request proof</button>' +
+          '<button class="btn btn-ghost btn-sm"><i class="ti ti-x"></i> Dismiss</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<div class="card"><div class="card-hd"><div class="card-title">Resolved disputes</div><span class="chip green">12 resolved this month</span></div>' +
+  '<table class="tbl"><thead><tr><th>ID</th><th>Booking</th><th>Type</th><th>Resolution</th><th>Date</th></tr></thead><tbody>' +
+    '<tr><td>DSP-000</td><td>DLV-00410</td><td>Not delivered</td><td><span class="chip green">Refunded</span></td><td class="muted">Dec 27</td></tr>' +
+    '<tr><td>DSP-999</td><td>DLV-00405</td><td>Wrong item</td><td><span class="chip green">Driver warned</span></td><td class="muted">Dec 26</td></tr>' +
+    '<tr><td>DSP-998</td><td>DLV-00401</td><td>Overcharge</td><td><span class="chip green">Partial refund</span></td><td class="muted">Dec 25</td></tr>' +
+  '</tbody></table></div></div>';
+};
+
+function resolveDispute(action) {
+  var msgs = {
+    customer:'Refund issued to customer. Driver warned.',
+    driver:'Resolved in driver\'s favour. Customer notified.',
+    suspend:'Warning issued to driver. Incident logged.'
+  };
+  toast(msgs[action] || 'Resolved.', 'success');
+}
+
+// ── AUDIT LOG ─────────────────────────────────────────────────────────────
+screens['audit'] = function() {
+  var logs = [
+    {admin:'Samuel O.',action:'KYC approved','target':'Kwame Asante (DRV-001)','time':'2:30pm','type':'success'},
+    {admin:'Samuel O.',action:'Booking cancelled','target':'DLV-00443','time':'2:20pm','type':'warning'},
+    {admin:'Adwoa A.',action:'Driver suspended','target':'DRV-999 (fraud flag)','time':'1:45pm','type':'error'},
+    {admin:'Samuel O.',action:'Dispute resolved','target':'DSP-000 — refund issued','time':'1:30pm','type':'success'},
+    {admin:'Adwoa A.',action:'Pricing updated','target':'Motorbike base fare: GHS 5 → 5.50','time':'11:00am','type':'info'},
+    {admin:'Samuel O.',action:'Corporate approved','target':'Accra Foods Ltd (CRP-001)','time':'10:30am','type':'success'},
+    {admin:'System',action:'Auto-refund triggered','target':'DLV-00440 — payment failed','time':'10:10am','type':'warning'},
+  ];
+
+  var typeIcon = {success:'ti-check',warning:'ti-alert-triangle',error:'ti-alert-circle',info:'ti-info-circle'};
+  var typeColor = {success:'var(--green)',warning:'var(--amber)',error:'var(--red)',info:'var(--brand)'};
+
+  var rows = logs.map(function(l) {
+    return '<tr>' +
+      '<td><i class="ti '+typeIcon[l.type]+'" style="color:'+typeColor[l.type]+';font-size:15px"></i></td>' +
+      '<td class="fw6 fs13">'+l.admin+'</td>' +
+      '<td>'+l.action+'</td>' +
+      '<td class="muted fs12">'+l.target+'</td>' +
+      '<td class="muted fs12">Today, '+l.time+'</td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div class="fade"><div class="card"><div class="card-hd"><div class="card-title">Admin audit log</div>' +
+    '<div class="flex gap8">' +
+      '<select class="fi fi-sel" style="width:auto;padding:6px 22px 6px 10px;font-size:12px"><option>All actions</option><option>KYC</option><option>Payments</option><option>Disputes</option><option>Pricing</option></select>' +
+      '<button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button>' +
+    '</div>' +
+  '</div>' +
+  '<div style="overflow-x:auto"><table class="tbl"><thead>' +
+    '<tr><th></th><th>Admin</th><th>Action</th><th>Target</th><th>Time</th></tr>' +
+  '</thead><tbody>'+rows+'</tbody></table></div></div></div>';
+};
+
+// ── PRICING ───────────────────────────────────────────────────────────────
+screens['pricing'] = function() {
+  return '<div class="fade" style="max-width:700px">' +
+  '<div class="card mb16" style="background:var(--amber-light);border-color:var(--amber)">' +
+    '<div class="card-bd" style="padding:12px 16px;display:flex;gap:10px;align-items:center">' +
+      '<i class="ti ti-alert-triangle" style="color:var(--amber);font-size:18px;flex-shrink:0"></i>' +
+      '<div class="fs13">Changes to fare rates take effect <strong>immediately</strong> on all new bookings. Existing bookings in progress are not affected. All changes are logged to the audit trail.</div>' +
+    '</div>' +
+  '</div>' +
+  pricingVehicle('🏍️ Motorbike','5.00','1.20','2.00','1.50','7.00') +
+  pricingVehicle('🚗 Car / Sedan','10.00','2.00','3.00','2.50','12.00') +
+  pricingVehicle('🚐 Van','18.00','3.50','5.00','4.00','22.00') +
+  '<div class="card"><div class="card-hd"><div class="card-title">Cash payment threshold</div></div><div class="card-bd">' +
+    '<div class="fg"><label class="fl">Maximum fare for cash payment (GHS)</label>' +
+      '<input class="fi" type="number" value="25" style="max-width:160px">' +
+      '<div style="font-size:12px;color:var(--g500);margin-top:5px">Orders above this amount cannot use cash. Currently GHS 25.00.</div>' +
+    '</div>' +
+    '<button class="btn btn-primary" onclick="toast(\'Pricing configuration saved\',\'success\')"><i class="ti ti-check"></i> Save all pricing</button>' +
+  '</div></div></div>';
+};
+
+function pricingVehicle(label, base, km, stop, fragile, minfare) {
+  return '<div class="card mb14"><div class="card-hd"><div class="card-title">'+label+'</div></div><div class="card-bd">' +
+    '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">' +
+      pField('Base fare (GHS)', base) +
+      pField('Per km (GHS)', km) +
+      pField('Per extra stop (GHS)', stop) +
+      pField('Fragile surcharge (GHS)', fragile) +
+      pField('Minimum fare (GHS)', minfare) +
+    '</div>' +
+  '</div></div>';
+}
+function pField(label, val) {
+  return '<div class="fg"><label class="fl">'+label+'</label><input class="fi" type="number" step="0.50" value="'+val+'"></div>';
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────
+screens['notifications'] = function() {
+  return '<div class="fade" style="max-width:680px">' +
+  '<div class="tabs" id="notif-tabs">' +
+    '<div class="tab active" onclick="switchTab(0)">Send notification</div>' +
+    '<div class="tab" onclick="switchTab(1)">SMS templates</div>' +
+    '<div class="tab" onclick="switchTab(2)">History</div>' +
+  '</div>' +
+  '<div id="notif-tab-body">' + notifTab0() + '</div></div>';
+};
+
+function switchTab(i) {
+  document.querySelectorAll('#notif-tabs .tab').forEach(function(t,ti){ t.classList.toggle('active',ti===i); });
+  var fns = [notifTab0, notifTab1, notifTab2];
+  document.getElementById('notif-tab-body').innerHTML = fns[i]();
+}
+
+function notifTab0() {
+  return '<div class="card"><div class="card-bd"><div class="grid2 mb12">' +
+    '<div class="fg"><label class="fl">Recipient type</label><select class="fi fi-sel"><option>All users</option><option>All customers</option><option>All drivers</option><option>All corporate accounts</option><option>Specific user</option></select></div>' +
+    '<div class="fg"><label class="fl">Channels</label><select class="fi fi-sel"><option>Push notification</option><option>SMS</option><option>Both push + SMS</option></select></div>' +
+    '</div>' +
+    '<div class="fg"><label class="fl">Title</label><input class="fi" placeholder="Notification title…"></div>' +
+    '<div class="fg"><label class="fl">Message</label><textarea class="fi" rows="4" placeholder="Message body…" style="resize:vertical"></textarea></div>' +
+    '<div class="fg"><label class="fl">Schedule</label><select class="fi fi-sel"><option>Send immediately</option><option>Schedule for later</option></select></div>' +
+    '<button class="btn btn-primary" onclick="toast(\'Notification queued for delivery\',\'success\')"><i class="ti ti-send"></i> Send notification</button>' +
+  '</div></div>';
+}
+function notifTab1() {
+  var templates = [
+    {name:'New order (SMS driver)','lang':'EN','preview':'DelivrGH NEW ORDER #{ref}: Pickup: {pickup}. Drop: {drop}. GHS {fare}. Reply YES to accept or NO to decline.'},
+    {name:'Delivery confirmed (EN)','lang':'EN','preview':'DelivrGH: Your booking #{ref} is confirmed. Track at: delivrgh.com/t/{token}'},
+    {name:'Delivery confirmed (TW)','lang':'TW','preview':'DelivrGH: Wo booking #{ref} da ho. Driver bɛ ba. Track wai: delivrgh.com/t/{token}'},
+    {name:'Delivery confirmed (GA)','lang':'GA','preview':'DelivrGH: Wo booking #{ref} da ho. Track: delivrgh.com/t/{token}'},
+    {name:'Driver payout','lang':'EN','preview':'DelivrGH: GHS {amount} has been added to your wallet. Balance: GHS {balance}.'},
+  ];
+  return templates.map(function(t) {
+    var lc = t.lang==='EN'?'blue':t.lang==='TW'?'green':'amber';
+    return '<div class="card mb8"><div class="card-bd" style="padding:12px 16px">' +
+      '<div class="flex items-center gap10 mb6"><div class="fw6 fs13">'+t.name+'</div><span class="chip '+lc+' fs11">'+t.lang+'</span>' +
+        '<button class="btn btn-ghost btn-xs" style="margin-left:auto"><i class="ti ti-edit"></i> Edit</button></div>' +
+      '<div style="background:var(--g50);padding:8px 10px;border-radius:var(--rs);font-size:12px;font-family:monospace;color:var(--g600)">'+t.preview+'</div>' +
+    '</div></div>';
+  }).join('');
+}
+function notifTab2() {
+  return '<div class="card"><table class="tbl"><thead><tr><th>Message</th><th>Recipients</th><th>Channel</th><th>Sent</th><th>Delivered</th></tr></thead><tbody>' +
+    '<tr><td>Service maintenance Dec 28</td><td>All users</td><td>Push</td><td>8,241</td><td><span class="chip green">99.2%</span></td></tr>' +
+    '<tr><td>New SMS driver feature</td><td>All drivers</td><td>Push+SMS</td><td>1,240</td><td><span class="chip green">98.5%</span></td></tr>' +
+    '<tr><td>Holiday promo (Dec 20)</td><td>All customers</td><td>Push</td><td>7,001</td><td><span class="chip green">97.8%</span></td></tr>' +
+  '</tbody></table></div>';
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────
+screens['settings'] = function() {
+  return '<div class="fade" style="max-width:660px">' +
+  settingSection('Platform','ti-settings',[
+    ['Platform name','Delivr GH','text'],
+    ['Support email','support@delivrgh.com','text'],
+    ['Support phone','+233 30 000 0001','text'],
+    ['Default language','English (en)','select'],
+    ['Operating hours','All hours (24/7)','select'],
+  ]) +
+  settingSection('Driver matching','ti-motorbike',[
+    ['Search radius (km)','10','number'],
+    ['Driver accept timeout (sec)','60','number'],
+    ['Max matching attempts','5','number'],
+    ['Retry interval (min)','2','number'],
+  ]) +
+  settingSection('Security','ti-shield-check',[
+    ['OTP expiry (min)','5','number'],
+    ['Session timeout (min)','30','number'],
+    ['Max login attempts','5','number'],
+    ['Admin IP whitelist','102.176.0.0/16, 41.66.0.0/16','text'],
+  ]) +
+  '<div class="flex gap10">' +
+    '<button class="btn btn-primary" onclick="toast(\'Settings saved successfully\',\'success\')"><i class="ti ti-check"></i> Save all settings</button>' +
+    '<button class="btn btn-ghost"><i class="ti ti-refresh"></i> Reset to defaults</button>' +
+  '</div></div>';
+};
+
+function settingSection(title, icon, fields) {
+  return '<div class="card mb14"><div class="card-hd"><div class="flex items-center gap8"><i class="ti '+icon+'" style="color:var(--brand)"></i><div class="card-title">'+title+'</div></div></div>' +
+    '<div class="card-bd" style="display:grid;gap:12px">' +
+    fields.map(function(f) {
+      var input = f[2]==='select'
+        ? '<select class="fi fi-sel"><option>'+f[1]+'</option></select>'
+        : '<input class="fi" type="'+f[2]+'" value="'+f[1]+'">';
+      return '<div class="flex items-center justify-between gap16"><label class="fl" style="margin:0;min-width:200px">'+f[0]+'</label><div style="flex:1;max-width:280px">'+input+'</div></div>';
+    }).join('') +
+    '</div></div>';
+}
+
+// ── INVOICES ──────────────────────────────────────────────────────────────
+screens['invoices'] = function() {
+  return '<div class="fade"><div class="flex gap8 mb16 items-center">' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 24px 7px 10px"><option>All companies</option><option>Accra Foods Ltd</option><option>Melcom Group</option></select>' +
+    '<select class="fi fi-sel" style="width:auto;padding:7px 24px 7px 10px"><option>All months</option><option>December 2024</option><option>November 2024</option></select>' +
+    '<div style="margin-left:auto"><button class="btn btn-primary btn-sm"><i class="ti ti-file-invoice"></i> Generate invoices</button></div>' +
+  '</div>' +
+  '<div class="card"><table class="tbl"><thead><tr><th>Company</th><th>Month</th><th>Deliveries</th><th>Total (GHS)</th><th>Status</th><th>Due date</th><th></th></tr></thead><tbody>' +
+    invRow2('Accra Foods Ltd','December 2024','148','4,320.00','pending','Jan 30, 2025') +
+    invRow2('Melcom Group','December 2024','92','2,680.00','pending','Jan 30, 2025') +
+    invRow2('Accra Foods Ltd','November 2024','122','3,560.00','paid','Dec 30, 2024') +
+    invRow2('Melcom Group','November 2024','78','2,275.00','paid','Dec 30, 2024') +
+    invRow2('Printex Ghana','November 2024','44','1,280.00','paid','Dec 30, 2024') +
+  '</tbody></table></div></div>';
+};
+
+function invRow2(co, month, trips, total, status, due) {
+  return '<tr><td class="fw6">'+co+'</td><td>'+month+'</td><td>'+trips+'</td>' +
+    '<td class="fw6 txt-brand">GHS '+total+'</td>' +
+    '<td><span class="chip '+(status==='paid'?'green':'amber')+'">'+status+'</span></td>' +
+    '<td class="muted fs12">'+due+'</td>' +
+    '<td><button class="btn btn-ghost btn-xs"><i class="ti ti-download"></i> PDF</button> ' +
+      (status==='pending'?'<button class="btn btn-ghost btn-xs txt-brand" onclick="toast(\'Invoice sent to company\',\'success\')"><i class="ti ti-send"></i> Send</button>':'')+'</td></tr>';
+}
+
+// ── PANEL ACTIONS ──────────────────────────────────────────────────────────
+function openBookingPanel(ref, route, driver) {
+  document.getElementById('panel-title').textContent = ref + ' — Booking detail';
+  document.getElementById('panel-body').innerHTML =
+    '<div class="mb16">' +
+      '<div class="chip blue mb8">En route</div>' +
+      '<div class="fs14 fw6 mb4">'+route+'</div>' +
+      '<div class="fs12 muted">Driver: '+driver+'</div>' +
+    '</div>' +
+    '<div class="divider"></div>' +
+    '<div class="timeline">' +
+      tlItem('green','2:05pm','Booking confirmed — '+ref) +
+      tlItem('blue','2:08pm',driver+' assigned') +
+      tlItem('blue','2:14pm','Package picked up at pickup location') +
+      tlItem('blue','2:18pm','En route to delivery address', true) +
+      tlItem('','~2:30pm','Estimated delivery') +
+    '</div>' +
+    '<div class="divider"></div>' +
+    '<div class="grid2 mb16">' +
+      '<div style="background:var(--g50);padding:10px;border-radius:var(--rs)"><div class="fs11 muted mb2">CUSTOMER</div><div class="fw6 fs13">Ama Kuffour</div><div class="fs12 muted">+233 24 567 8901</div></div>' +
+      '<div style="background:var(--g50);padding:10px;border-radius:var(--rs)"><div class="fs11 muted mb2">FARE</div><div class="fw6 fs13">GHS 22.00</div><div class="fs12 muted">MTN Mobile Money</div></div>' +
+    '</div>';
+  document.getElementById('panel-footer').innerHTML =
+    '<button class="btn btn-danger btn-sm" onclick="toast(\'Booking cancelled by admin\',\'warning\');closePanel()"><i class="ti ti-x"></i> Cancel booking</button>' +
+    '<button class="btn btn-secondary btn-sm" onclick="closePanel()">Close</button>';
+  openPanel();
+}
+
+function tlItem(dot, time, text, active) {
+  return '<div class="tl-item"><div class="tl-dot '+(dot||'')+'"></div>' +
+    '<div class="tl-time">'+time+'</div>' +
+    '<div class="tl-text'+(active?' fw6 txt-brand':'')+'">'+text+'</div></div>';
+}
+
+function openDriverPanel(id, name, kyc) {
+  document.getElementById('panel-title').textContent = name + ' — Driver profile';
+  document.getElementById('panel-body').innerHTML =
+    '<div class="flex items-center gap12 mb16">' +
+      '<div class="avatar av-amber" style="width:52px;height:52px;font-size:16px">'+name.split(' ').map(function(n){return n[0];}).join('')+'</div>' +
+      '<div><div class="fs15 fw7">'+name+'</div><div class="fs12 muted">'+id+'</div>' +
+        '<span class="chip '+(kyc==='verified'?'green':'amber')+' mt4">'+kyc+'</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="divider"></div>' +
+    '<div style="display:grid;gap:10px;font-size:13px">' +
+      kv('Vehicle','🏍️ Motorbike · GT-2345-21') +
+      kv('Phone','+233 24 567 8900') +
+      kv('Joined','Dec 1, 2024') +
+      kv('Total trips','312') +
+      kv('Rating','⭐ 4.9') +
+      kv('Wallet balance','GHS 284.50') +
+      kv('Completion rate','98%') +
+      kv('Status','Online') +
+    '</div>' +
+    '<div class="divider"></div>' +
+    '<div class="fs13 fw6 mb8">Recent trips</div>' +
+    '<table class="tbl"><thead><tr><th>Ref</th><th>Route</th><th>Fare</th></tr></thead><tbody>' +
+      '<tr><td>DLV-00449</td><td>Osu → Airport Res.</td><td class="fw6">GHS 22</td></tr>' +
+      '<tr><td>DLV-00448</td><td>Madina → East Legon</td><td class="fw6">GHS 28.50</td></tr>' +
+      '<tr><td>DLV-00447</td><td>Circle → Dansoman</td><td class="fw6">GHS 18</td></tr>' +
+    '</tbody></table>';
+  document.getElementById('panel-footer').innerHTML =
+    '<button class="btn btn-danger btn-sm" onclick="toast(\'Driver suspended. They will be notified.\',\'error\');closePanel()"><i class="ti ti-ban"></i> Suspend driver</button>' +
+    '<button class="btn btn-secondary btn-sm" onclick="closePanel()">Close</button>';
+  openPanel();
+}
+
+function kv(k, v) {
+  return '<div class="flex justify-between"><span class="muted">'+k+'</span><span class="fw6">'+v+'</span></div>';
+}
+
+// ── MODALS ────────────────────────────────────────────────────────────────
+function openModal(type, name) {
+  var wrap = document.getElementById('modal-wrap');
+  var title = document.getElementById('modal-title');
+  var body = document.getElementById('modal-body');
+  var footer = document.getElementById('modal-footer');
+
+  if(type === 'quick-action') {
+    title.textContent = 'Quick action';
+    body.innerHTML = '<div style="display:grid;gap:8px">' +
+      qaBtn('ti-ban','Suspend a user','Immediately block access for any user','danger') +
+      qaBtn('ti-id-badge','Approve KYC','Fast-track a driver verification','primary') +
+      qaBtn('ti-refresh','Retry failed payment','Re-attempt a failed Paystack charge','outline') +
+      qaBtn('ti-send','Send announcement','Push a message to all users','outline') +
+      qaBtn('ti-chart-bar','Export report','Download full data export','secondary') +
+    '</div>';
+    footer.innerHTML = '<button class="btn btn-secondary" onclick="closeModal()">Close</button>';
+  } else if(type === 'reject-kyc') {
+    title.textContent = 'Reject KYC — ' + name;
+    body.innerHTML = '<div class="fg"><label class="fl">Rejection reason</label>' +
+      '<select class="fi fi-sel mb8"><option>Document unclear or illegible</option><option>Document expired</option><option>Liveness check failed</option><option>Suspected fraudulent document</option><option>Other</option></select></div>' +
+      '<div class="fg"><label class="fl">Additional note to driver (optional)</label><textarea class="fi" rows="3" placeholder="Add instructions for resubmission…"></textarea></div>' +
+      '<div style="background:var(--red-light);padding:10px 12px;border-radius:var(--rs);font-size:12px;color:#991B1B">Driver will receive an SMS notification with the rejection reason and instructions to resubmit.</div>';
+    footer.innerHTML = '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+      '<button class="btn btn-danger" onclick="toast(\'KYC rejected for '+name+'\',\'error\');closeModal();nav(\'kyc\')"><i class="ti ti-x"></i> Confirm rejection</button>';
+  } else if(type === 'suspend-user') {
+    title.textContent = 'Suspend account — ' + (name || 'User');
+    body.innerHTML = '<div class="fg"><label class="fl">Suspension reason</label>' +
+      '<select class="fi fi-sel mb8"><option>Fraudulent activity</option><option>Payment abuse</option><option>Violation of terms</option><option>Suspected fake account</option></select></div>' +
+      '<div class="fg"><label class="fl">Duration</label>' +
+      '<select class="fi fi-sel"><option>Permanent</option><option>7 days</option><option>30 days</option><option>Until reviewed</option></select></div>' +
+      '<div style="background:var(--red-light);padding:10px;border-radius:var(--rs);font-size:12px;color:#991B1B">This action will immediately block the account and log to the audit trail.</div>';
+    footer.innerHTML = '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+      '<button class="btn btn-danger" onclick="toast(\'Account suspended\',\'error\');closeModal()"><i class="ti ti-ban"></i> Suspend account</button>';
+  }
+
+  wrap.classList.add('open');
+}
+
+function openKYCModal(id, name) {
+  document.getElementById('modal-title').textContent = 'KYC review — ' + name;
+  // Simulate doc states per driver
+  var docStates = {
+    'DRV-006': {ghana_card:'ok',license:'ok',vehicle_reg:'ok',insurance:'missing'},
+    'DRV-007': {ghana_card:'ok',license:'ok',vehicle_reg:'missing',insurance:'missing'},
+    'DRV-008': {ghana_card:'ok',license:'ok',vehicle_reg:'ok',insurance:'ok'},
+    'DRV-009': {ghana_card:'ok',license:'missing',vehicle_reg:'ok',insurance:'ok'},
+    'DRV-010': {ghana_card:'ok',license:'ok',vehicle_reg:'ok',insurance:'ok'},
+  };
+  var docs = docStates[id] || {ghana_card:'ok',license:'ok',vehicle_reg:'ok',insurance:'ok'};
+
+  function docBox(icon, label, status, detail, bg, color) {
+    var ok = status==='ok';
+    return '<div style="border:1px solid '+(ok?'var(--g200)':'var(--red)')+';border-radius:var(--rs);padding:12px;background:'+(ok?'var(--surface)':'var(--red-light)')+'">' +
+      '<div class="flex items-center gap8 mb6">' +
+        '<div style="width:30px;height:30px;border-radius:6px;background:'+bg+';display:flex;align-items:center;justify-content:center">' +
+          '<i class="ti '+icon+'" style="font-size:14px;color:'+color+'"></i></div>' +
+        '<div class="fw6 fs12">'+label+'</div>' +
+        '<span style="margin-left:auto;font-size:11px;font-weight:700;color:'+(ok?'var(--green)':'var(--red)')+'">'+( ok?'✓ Uploaded':'✗ Missing')+'</span>' +
+      '</div>' +
+      '<div class="fs11 muted">'+detail+'</div>' +
+      (ok ? '<div style="margin-top:6px;height:50px;background:var(--g100);border-radius:4px;display:flex;align-items:center;justify-content:center"><span class="fs11 muted">Document image preview</span></div>' : '') +
+    '</div>';
+  }
+
+  document.getElementById('modal-body').innerHTML =
+    '<div class="fs12 muted mb12">'+id+' · Submitted 2 hours ago</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+      docBox('ti-id-badge','Ghana Card',docs.ghana_card,'NIA Card — verified via Smile ID facial match','var(--brand-light)','var(--brand)') +
+      docBox('ti-license',"Driver's licence",docs.license,'DVLA Ghana driving licence — checked for expiry and class','var(--teal-light)','var(--teal)') +
+      docBox('ti-certificate','Vehicle registration',docs.vehicle_reg,'DVLA vehicle reg doc — matched to vehicle type at signup','var(--purple-light)','var(--purple)') +
+      docBox('ti-shield-check','Auto insurance',docs.insurance,'Motor insurance policy — must cover commercial use','var(--amber-light)','var(--amber)') +
+    '</div>' +
+    '<div style="background:var(--g50);padding:10px;border-radius:var(--rs);font-size:13px;display:grid;gap:6px;margin-bottom:10px">' +
+      kv('Smile ID result','Match confidence 94% — Ghana Card verified') +
+      kv('Liveness check','Passed') +
+      kv('Document expiry','Licence: Dec 2027 · Insurance: Mar 2025') +
+    '</div>' +
+    (Object.values(docs).some(function(v){return v==='missing';}) ?
+      '<div style="background:var(--red-light);padding:10px 12px;border-radius:var(--rs);font-size:12px;color:#991B1B"><i class="ti ti-alert-circle"></i> <strong>Cannot approve:</strong> one or more required documents are missing. Driver will be notified via SMS to upload the missing items.</div>' :
+      '<div style="background:var(--green-light);padding:10px 12px;border-radius:var(--rs);font-size:12px;color:#166534"><i class="ti ti-check"></i> All 4 required documents uploaded. Ready to approve.</div>'
+    );
+
+  var allOk = Object.values(docs).every(function(v){return v==='ok';});
+  document.getElementById('modal-footer').innerHTML =
+    '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-danger btn-sm" onclick="closeModal();openModal(\'reject-kyc\',\''+name+'\')"><i class="ti ti-x"></i> Reject</button>' +
+    (allOk ? '<button class="btn btn-success btn-sm" onclick="toast(\'KYC approved — '+name+' can now go online\',\'success\');closeModal();nav(\'kyc\')"><i class="ti ti-check"></i> Approve all documents</button>' :
+      '<button class="btn btn-ghost btn-sm" onclick="toast(\'Reminder sent to '+name+' via SMS\',\'success\');closeModal()"><i class="ti ti-send"></i> Remind driver (SMS)</button>');
+  document.getElementById('modal-wrap').classList.add('open');
+}
+
+function qaBtn(icon, label, desc, variant) {
+  return '<button class="btn btn-'+variant+' btn-full" style="justify-content:flex-start;gap:10px;padding:10px 14px" onclick="closeModal();toast(\''+label+'\',\'success\')">' +
+    '<i class="ti '+icon+'" style="font-size:17px"></i><div style="text-align:left"><div>'+label+'</div><div style="font-size:11px;opacity:0.7;font-weight:400">'+desc+'</div></div></button>';
+}
+
+function closeModal() { document.getElementById('modal-wrap').classList.remove('open'); }
+function closeModalOutside(e) { if(e.target === document.getElementById('modal-wrap')) closeModal(); }
+
+// ── PANEL ─────────────────────────────────────────────────────────────────
+function openPanel() {
+  document.getElementById('panel-backdrop').classList.add('open');
+  document.getElementById('side-panel').classList.add('open');
+}
+function closePanel() {
+  document.getElementById('panel-backdrop').classList.remove('open');
+  document.getElementById('side-panel').classList.remove('open');
+}
+function toggleNotifPanel() {
+  var panel = document.getElementById('side-panel');
+  if(panel.classList.contains('open') && document.getElementById('panel-title').textContent === 'Notifications') {
+    closePanel(); return;
+  }
+  document.getElementById('panel-title').textContent = 'Notifications';
+  document.getElementById('panel-body').innerHTML = notifPanelBody();
+  document.getElementById('panel-footer').innerHTML = '<button class="btn btn-ghost btn-sm btn-full" onclick="closePanel()">Mark all read</button>';
+  document.querySelector('.tb-notif-dot').style.display = 'none';
+  openPanel();
+}
+function notifPanelBody() {
+  var items = [
+    {icon:'ti-id-badge',col:'amber',title:'KYC pending','sub':'5 drivers awaiting review','time':'2 min ago'},
+    {icon:'ti-alert-triangle',col:'red',title:'Dispute opened','sub':'DLV-00431 — customer claims non-delivery','time':'45 min ago'},
+    {icon:'ti-clock',col:'amber',title:'No driver found','sub':'DLV-00442 — Kasoa area, 15+ min wait','time':'1 hr ago'},
+    {icon:'ti-alert-circle',col:'red',title:'Payment failed','sub':'DLV-00440 — GHS 45 MTN MoMo charge failed','time':'2 hr ago'},
+    {icon:'ti-user-plus',col:'blue',title:'New corporate registration','sub':'Ashfoam Ghana registered for trial','time':'3 hr ago'},
+    {icon:'ti-check',col:'green',title:'Daily report ready','sub':'284 deliveries · GHS 12,840 processed','time':'6 hr ago'},
+  ];
+  return items.map(function(n) {
+    return '<div style="display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--g100);cursor:pointer">' +
+      '<div style="width:34px;height:34px;border-radius:var(--rs);background:var(--'+n.col+'-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+        '<i class="ti '+n.icon+'" style="font-size:15px;color:var(--'+n.col+')"></i></div>' +
+      '<div><div class="fs13 fw6">'+n.title+'</div><div class="fs12 muted">'+n.sub+'</div>' +
+        '<div class="fs11 muted mt4">'+n.time+'</div></div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+function toast(msg, type) {
+  type = type || 'info';
+  var icons = {success:'ti-check',error:'ti-alert-circle',warning:'ti-alert-triangle',info:'ti-info-circle'};
+  var container = document.getElementById('toast-container');
+  var el = document.createElement('div');
+  el.className = 'toast '+type;
+  el.innerHTML = '<i class="ti '+icons[type]+'" style="font-size:16px"></i><span>'+msg+'</span>';
+  container.appendChild(el);
+  setTimeout(function(){ el.classList.add('show'); }, 10);
+  setTimeout(function(){ el.classList.remove('show'); setTimeout(function(){ el.remove(); }, 300); }, 3500);
+}
+
+// ── PROMOTIONS & DISCOUNTS ────────────────────────────────────────────────
+var promoState = {
+  promos: [
+    {id:'PROMO-001',name:'New Year Flash Sale',type:'percent',value:20,code:'NEWYEAR25',target:'all_customers',vehicle:'all',minFare:0,uses:284,maxUses:1000,spent:'GHS 1,640',status:'active',start:'Jan 1, 2025',end:'Jan 7, 2025',desc:'20% off all deliveries to celebrate the new year'},
+    {id:'PROMO-002',name:'Corporate Onboarding',type:'flat',value:15,code:'CORPWELCOME',target:'corporate',vehicle:'all',minFare:30,uses:12,maxUses:500,spent:'GHS 180',status:'active',start:'Dec 1, 2024',end:'Mar 31, 2025',desc:'GHS 15 off first 5 bookings for new corporate accounts'},
+    {id:'PROMO-003',name:'Motorbike Monday',type:'percent',value:10,code:'MOTOMONDAY',target:'all_customers',vehicle:'motorbike',minFare:0,uses:98,maxUses:300,spent:'GHS 220',status:'active',start:'Dec 16, 2024',end:'Jan 31, 2025',desc:'10% off all motorbike deliveries every Monday'},
+    {id:'PROMO-004',name:'First Delivery Free',type:'flat',value:25,code:'FIRSTRIDE',target:'new_customers',vehicle:'all',minFare:0,uses:441,maxUses:2000,spent:'GHS 11,025',status:'paused',start:'Nov 1, 2024',end:'Dec 31, 2024',desc:'Up to GHS 25 off your very first delivery'},
+    {id:'PROMO-005',name:'Refer a Driver',type:'flat',value:30,code:'N/A',target:'drivers',vehicle:'all',minFare:0,uses:34,maxUses:500,spent:'GHS 1,020',status:'ended',start:'Oct 1, 2024',end:'Nov 30, 2024',desc:'GHS 30 wallet bonus for drivers who refer another driver'},
+  ],
+  tab: 0
+};
+
+screens['promotions'] = function() {
+  return '<div class="fade">' +
+  statRow() +
+  '<div class="flex gap8 items-center mb16">' +
+    '<div class="tabs" style="margin-bottom:0;border-bottom:none">' +
+      '<div class="tab'+(promoState.tab===0?' active':'')+'" onclick="promoTab(0)">All promotions</div>' +
+      '<div class="tab'+(promoState.tab===1?' active':'')+'" onclick="promoTab(1)">Promo codes</div>' +
+      '<div class="tab'+(promoState.tab===2?' active':'')+'" onclick="promoTab(2)">Auto discounts</div>' +
+      '<div class="tab'+(promoState.tab===3?' active':'')+'" onclick="promoTab(3)">Analytics</div>' +
+    '</div>' +
+    '<div style="margin-left:auto;display:flex;gap:8px">' +
+      '<button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button>' +
+      '<button class="btn btn-primary btn-sm" onclick="openCreatePromo()"><i class="ti ti-plus"></i> New promotion</button>' +
+    '</div>' +
+  '</div>' +
+  '<div id="promo-tab-body">' + promoTabBody(promoState.tab) + '</div>' +
+  '</div>';
+};
+
+function statRow() {
+  return '<div class="stat-grid mb20">' +
+    mkStat('ti-rosette-discount','Active promotions','3','2 promo codes, 1 auto discount','neu','var(--purple-light)','var(--purple)') +
+    mkStat('ti-users','Redemptions (month)','394','+28% vs last month','up','var(--green-light)','var(--green)') +
+    mkStat('ti-currency','Discount cost (month)','GHS 3,065','Budget: GHS 8,000 / mo','neu','var(--amber-light)','var(--amber)') +
+    mkStat('ti-chart-bar','Avg order uplift','12%','vs non-promo orders','up','var(--brand-light)','var(--brand)') +
+  '</div>';
+}
+
+function promoTab(i) {
+  promoState.tab = i;
+  document.querySelectorAll('#main-content .tab').forEach(function(t,ti){ t.classList.toggle('active',ti===i); });
+  document.getElementById('promo-tab-body').innerHTML = promoTabBody(i);
+}
+
+function promoTabBody(i) {
+  if(i===0) return promoList();
+  if(i===1) return promoCodesView();
+  if(i===2) return autoDiscountsView();
+  if(i===3) return promoAnalyticsView();
+  return '';
+}
+
+function promoList() {
+  var filters = '<div class="flex gap8 mb14">' +
+    '<select class="fi fi-sel" style="width:auto;padding:6px 22px 6px 10px;font-size:12px"><option>All statuses</option><option>Active</option><option>Paused</option><option>Ended</option></select>' +
+    '<select class="fi fi-sel" style="width:auto;padding:6px 22px 6px 10px;font-size:12px"><option>All targets</option><option>All customers</option><option>New customers</option><option>Corporate</option><option>Drivers</option></select>' +
+    '<input class="fi" placeholder="Search promotions…" style="max-width:220px">' +
+  '</div>';
+
+  var cards = promoState.promos.map(function(p) {
+    var sc = p.status==='active'?'green':p.status==='paused'?'amber':'gray';
+    var pct = Math.min(100, Math.round(p.uses/p.maxUses*100));
+    var typeLabel = p.type==='percent' ? p.value+'% off' : 'GHS '+p.value+' off';
+    var targetLabel = {all_customers:'All customers',new_customers:'New customers',corporate:'Corporate accounts',drivers:'Drivers'}[p.target] || p.target;
+    return '<div class="card mb12" style="'+(p.status==='active'?'border-left:4px solid var(--green)':p.status==='paused'?'border-left:4px solid var(--amber)':'border-left:4px solid var(--g300)')+'">' +
+      '<div class="card-bd">' +
+        '<div class="flex items-center justify-between mb10">' +
+          '<div class="flex items-center gap10">' +
+            '<div style="width:40px;height:40px;border-radius:var(--rs);background:'+(p.status==='active'?'var(--green-light)':p.status==='paused'?'var(--amber-light)':'var(--g100)')+';display:flex;align-items:center;justify-content:center">' +
+              '<i class="ti ti-rosette-discount" style="font-size:18px;color:'+(p.status==='active'?'var(--green)':p.status==='paused'?'var(--amber)':'var(--g400)')+'"></i>' +
+            '</div>' +
+            '<div>' +
+              '<div class="fw7 fs14">'+p.name+'</div>' +
+              '<div class="fs12 muted">'+p.desc+'</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex items-center gap8">' +
+            '<span class="chip '+sc+'">'+p.status+'</span>' +
+            (p.code!=='N/A'?'<code style="background:var(--g100);padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:1px">'+p.code+'</code>':'') +
+          '</div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px">' +
+          promoKV('Discount',typeLabel) +
+          promoKV('Target',targetLabel) +
+          promoKV('Vehicle',p.vehicle==='all'?'All types':p.vehicle) +
+          promoKV('Min fare',p.minFare>0?'GHS '+p.minFare:'None') +
+          promoKV('Cost so far',p.spent) +
+        '</div>' +
+        '<div class="mb10">' +
+          '<div class="flex justify-between mb4"><span class="fs12 muted">Redemptions</span><span class="fs12 fw6">'+p.uses+' / '+p.maxUses+'</span></div>' +
+          '<div style="height:6px;background:var(--g100);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+(p.status==='active'?'var(--green)':p.status==='paused'?'var(--amber)':'var(--g300)')+';border-radius:3px;transition:width 0.6s"></div></div>' +
+          '<div class="fs11 muted mt4">'+p.start+' – '+p.end+'</div>' +
+        '</div>' +
+        '<div class="flex gap8">' +
+          (p.status==='active'?'<button class="btn btn-ghost btn-xs" onclick="pausePromo(\''+p.id+'\')"><i class="ti ti-player-pause"></i> Pause</button>':'') +
+          (p.status==='paused'?'<button class="btn btn-success btn-xs" onclick="resumePromo(\''+p.id+'\')"><i class="ti ti-player-play"></i> Resume</button>':'') +
+          '<button class="btn btn-ghost btn-xs" onclick="editPromo(\''+p.id+'\')"><i class="ti ti-edit"></i> Edit</button>' +
+          '<button class="btn btn-ghost btn-xs" onclick="openPromoStats(\''+p.id+'\',\''+p.name+'\')"><i class="ti ti-chart-bar"></i> Stats</button>' +
+          (p.status!=='ended'?'<button class="btn btn-ghost btn-xs txt-red" onclick="endPromo(\''+p.id+'\',\''+p.name+'\')"><i class="ti ti-trash"></i> End</button>':'') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  return filters + cards;
+}
+
+function promoKV(k,v) {
+  return '<div style="background:var(--g50);padding:8px 10px;border-radius:var(--rs)">' +
+    '<div class="fs10 muted fw6" style="letter-spacing:0.4px;text-transform:uppercase;margin-bottom:2px">'+k+'</div>' +
+    '<div class="fs13 fw6">'+v+'</div>' +
+  '</div>';
+}
+
+function promoCodesView() {
+  var codes = promoState.promos.filter(function(p){ return p.code!=='N/A'; });
+  var rows = codes.map(function(p) {
+    var sc = p.status==='active'?'green':p.status==='paused'?'amber':'gray';
+    return '<tr>' +
+      '<td><code style="background:var(--g100);padding:3px 10px;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:1px">'+p.code+'</code></td>' +
+      '<td class="fw6">'+p.name+'</td>' +
+      '<td class="fw6 txt-brand">'+(p.type==='percent'?p.value+'%':'GHS '+p.value)+' off</td>' +
+      '<td>'+p.uses+' / '+p.maxUses+'</td>' +
+      '<td>'+p.end+'</td>' +
+      '<td><span class="chip '+sc+'">'+p.status+'</span></td>' +
+      '<td>' +
+        '<button class="btn btn-ghost btn-xs" onclick="copyCode(\''+p.code+'\')"><i class="ti ti-copy"></i> Copy</button> ' +
+        '<button class="btn btn-ghost btn-xs" onclick="editPromo(\''+p.id+'\')"><i class="ti ti-edit"></i></button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+  return '<div class="card mb14" style="border-color:var(--brand);background:var(--brand-light)">' +
+    '<div class="card-bd" style="padding:12px 16px;display:flex;align-items:center;gap:10px">' +
+      '<i class="ti ti-info-circle" style="color:var(--brand);font-size:18px;flex-shrink:0"></i>' +
+      '<div class="fs13" style="color:var(--brand-dark)">Promo codes are entered by customers at checkout. They can be single-use, limited-use, or unlimited. Codes are case-insensitive.</div>' +
+    '</div>' +
+  '</div>' +
+  '<div class="card"><div class="card-hd"><div class="card-title">Active promo codes</div>' +
+    '<button class="btn btn-primary btn-sm" onclick="openCreatePromo(\'code\')"><i class="ti ti-plus"></i> New code</button>' +
+  '</div>' +
+  '<table class="tbl"><thead><tr><th>Code</th><th>Promotion</th><th>Discount</th><th>Uses</th><th>Expires</th><th>Status</th><th></th></tr></thead>' +
+  '<tbody>'+rows+'</tbody></table></div>';
+}
+
+function autoDiscountsView() {
+  var autoPromos = [
+    {name:'First delivery — new customers',trigger:'First booking by a new user',discount:'Up to GHS 25 off',vehicle:'All',status:'paused'},
+    {name:'Motorbike Monday',trigger:'Any motorbike booking on Mondays',discount:'10% off',vehicle:'Motorbike',status:'active'},
+    {name:'Off-peak hours',trigger:'Booking placed 9pm–6am',discount:'GHS 5 off',vehicle:'All',status:'inactive'},
+    {name:'Bulk order (3+ stops)',trigger:'Booking with 3 or more stops',discount:'Free extra stop',vehicle:'All',status:'inactive'},
+  ];
+
+  var rows = autoPromos.map(function(a) {
+    var sc = a.status==='active'?'green':a.status==='paused'?'amber':'gray';
+    return '<tr>' +
+      '<td class="fw6">'+a.name+'</td>' +
+      '<td class="fs12 muted">'+a.trigger+'</td>' +
+      '<td class="fw6 txt-brand">'+a.discount+'</td>' +
+      '<td>'+a.vehicle+'</td>' +
+      '<td><span class="chip '+sc+'">'+a.status+'</span></td>' +
+      '<td>' +
+        (a.status==='active'?'<button class="btn btn-ghost btn-xs txt-amber" onclick="toast(\'Auto discount paused\',\'warning\')"><i class="ti ti-player-pause"></i> Pause</button>':
+         '<button class="btn btn-ghost btn-xs txt-green" onclick="toast(\'Auto discount activated\',\'success\')"><i class="ti ti-player-play"></i> Activate</button>') +
+        ' <button class="btn btn-ghost btn-xs" onclick="openEditAutoModal(\''+a.name+'\')"><i class="ti ti-edit"></i> Edit</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div class="card mb14">' +
+    '<div class="card-hd"><div><div class="card-title">Auto discounts</div><div class="card-sub">Applied automatically when booking conditions are met — no code required</div></div>' +
+      '<button class="btn btn-primary btn-sm" onclick="openCreatePromo(\'auto\')"><i class="ti ti-plus"></i> New auto discount</button>' +
+    '</div>' +
+    '<table class="tbl"><thead><tr><th>Rule name</th><th>Trigger condition</th><th>Discount</th><th>Vehicle</th><th>Status</th><th>Actions</th></tr></thead>' +
+    '<tbody>'+rows+'</tbody></table>' +
+  '</div>';
+}
+
+function promoAnalyticsView() {
+  return '<div class="grid2 mb16">' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Redemptions over time</div><span class="chip gray fs11">Last 30 days</span></div><div class="card-bd">' +
+      promoChart() +
+    '</div></div>' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Cost by promotion</div></div><div class="card-bd">' +
+      barH('New Year Flash Sale','GHS 1,640','80') +
+      barH('First Delivery Free','GHS 750','37') +
+      barH('Motorbike Monday','GHS 220','11') +
+      barH('Corporate Onboarding','GHS 180','9') +
+      barH('Refer a Driver','GHS 275','13') +
+    '</div></div>' +
+  '</div>' +
+  '<div class="grid3">' +
+    '<div class="card"><div class="card-hd"><div class="card-title">New vs returning use</div></div><div class="card-bd">' +
+      '<div style="text-align:center;padding:10px 0">' +
+        '<div style="font-size:40px;font-weight:800;color:var(--brand)">68%</div>' +
+        '<div class="fs13 muted mt4">New customer redemptions</div>' +
+        '<div style="font-size:28px;font-weight:700;color:var(--teal);margin-top:12px">32%</div>' +
+        '<div class="fs13 muted mt4">Returning customer redemptions</div>' +
+      '</div>' +
+    '</div></div>' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Promo vs organic orders</div></div><div class="card-bd">' +
+      barH('With promo code','394 orders (8%)','8') +
+      barH('Auto discount','142 orders (3%)','3') +
+      barH('Full price','4,306 orders (89%)','89') +
+    '</div></div>' +
+    '<div class="card"><div class="card-hd"><div class="card-title">ROI summary</div></div><div class="card-bd">' +
+      '<div style="display:grid;gap:10px">' +
+        kv('Total discount cost','GHS 3,065') +
+        kv('Incremental orders','284 est.') +
+        kv('Revenue from promo orders','GHS 9,200') +
+        kv('Net ROI','<span class="txt-green fw6">+200%</span>') +
+        kv('Customer LTV uplift','<span class="txt-green fw6">+34%</span>') +
+      '</div>' +
+    '</div></div>' +
+  '</div>';
+}
+
+function promoChart() {
+  var vals = [8,12,18,22,28,35,42,38,44,50,46,52,48,54,60,58,64,70,66,72,68,76,80,74,82,78,86,84,90,88];
+  var max = 90;
+  var html = '<div style="display:flex;align-items:flex-end;gap:2px;height:80px">';
+  vals.forEach(function(v) {
+    var pct = Math.round(v/max*100);
+    html += '<div style="flex:1;height:'+pct+'%;background:var(--purple);border-radius:2px 2px 0 0;opacity:'+(0.35+pct/140).toFixed(2)+'"></div>';
+  });
+  html += '</div><div style="display:flex;justify-content:space-between;margin-top:6px"><span class="fs11 muted">Dec 1</span><span class="fs11 muted">Dec 15</span><span class="fs11 muted">Dec 30</span></div>';
+  return html;
+}
+
+// ── PROMO ACTIONS ──────────────────────────────────────────────────────────
+function pausePromo(id) {
+  var p = promoState.promos.find(function(x){ return x.id===id; });
+  if(p) { p.status = 'paused'; toast('Promotion paused: '+p.name, 'warning'); nav('promotions'); }
+}
+function resumePromo(id) {
+  var p = promoState.promos.find(function(x){ return x.id===id; });
+  if(p) { p.status = 'active'; toast('Promotion resumed: '+p.name, 'success'); nav('promotions'); }
+}
+function endPromo(id, name) {
+  openModal('end-promo', name);
+  document.getElementById('modal-title').textContent = 'End promotion';
+  document.getElementById('modal-body').innerHTML =
+    '<div style="background:var(--red-light);padding:12px;border-radius:var(--rs);margin-bottom:14px">' +
+      '<div class="fw6 fs13 mb4">Are you sure you want to end "'+name+'"?</div>' +
+      '<div class="fs12 muted">This will immediately stop all redemptions. This cannot be undone.</div>' +
+    '</div>' +
+    '<div class="fg"><label class="fl">Reason for ending</label>' +
+      '<select class="fi fi-sel"><option>Budget exhausted</option><option>Campaign complete</option><option>Abuse detected</option><option>Strategy change</option></select>' +
+    '</div>';
+  document.getElementById('modal-footer').innerHTML =
+    '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-danger" onclick="confirmEndPromo(\''+id+'\',\''+name+'\')"><i class="ti ti-trash"></i> End promotion</button>';
+}
+function confirmEndPromo(id, name) {
+  var p = promoState.promos.find(function(x){ return x.id===id; });
+  if(p) p.status = 'ended';
+  toast('Promotion ended: '+name, 'warning');
+  closeModal();
+  nav('promotions');
+}
+function copyCode(code) {
+  toast('Code "'+code+'" copied to clipboard', 'success');
+}
+function editPromo(id) {
+  var p = promoState.promos.find(function(x){ return x.id===id; });
+  if(!p) return;
+  openPromoModal(p);
+}
+function openPromoStats(id, name) {
+  document.getElementById('panel-title').textContent = name + ' — Stats';
+  var p = promoState.promos.find(function(x){ return x.id===id; });
+  if(!p) return;
+  var pct = Math.min(100, Math.round(p.uses/p.maxUses*100));
+  document.getElementById('panel-body').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">' +
+      panelStat('Redemptions',p.uses.toString()) +
+      panelStat('Max uses',p.maxUses.toString()) +
+      panelStat('Total discount cost',p.spent) +
+      panelStat('Avg discount per order',(p.uses>0?'GHS '+(parseInt(p.spent.replace(/[^0-9]/g,''))/p.uses).toFixed(2):'—')) +
+    '</div>' +
+    '<div class="mb12">' +
+      '<div class="flex justify-between mb4"><span class="fs12 muted">Usage progress</span><span class="fs12 fw6">'+pct+'%</span></div>' +
+      '<div style="height:8px;background:var(--g100);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:var(--green);border-radius:4px"></div></div>' +
+    '</div>' +
+    '<div class="divider"></div>' +
+    '<div class="fs13 fw6 mb10">Daily redemptions (last 7 days)</div>' +
+    '<div style="display:flex;align-items:flex-end;gap:6px;height:60px;margin-bottom:6px">' +
+      [12,18,24,16,22,28,20].map(function(v) {
+        return '<div style="flex:1;height:'+(v/28*100).toFixed(0)+'%;background:var(--purple);border-radius:2px 2px 0 0;opacity:0.75"></div>';
+      }).join('') +
+    '</div>' +
+    '<div style="display:flex;justify-content:space-between">' +
+      ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(function(d){ return '<span class="fs10 muted">'+d+'</span>'; }).join('') +
+    '</div>' +
+    '<div class="divider"></div>' +
+    '<div class="fs13 fw6 mb8">Top redemption areas</div>' +
+    barH('Accra Central','42 uses','75') +
+    barH('Osu','28 uses','50') +
+    barH('East Legon','18 uses','32') +
+    barH('Madina','10 uses','18');
+  document.getElementById('panel-footer').innerHTML =
+    '<button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export CSV</button>' +
+    '<button class="btn btn-secondary btn-sm" onclick="closePanel()">Close</button>';
+  openPanel();
+}
+
+function panelStat(label, value) {
+  return '<div style="background:var(--g50);padding:10px 12px;border-radius:var(--rs)">' +
+    '<div class="fs11 muted fw6 mb2" style="text-transform:uppercase;letter-spacing:0.4px">'+label+'</div>' +
+    '<div class="fs18 fw7" style="font-size:18px">'+value+'</div>' +
+  '</div>';
+}
+
+// ── CREATE / EDIT PROMO MODAL ──────────────────────────────────────────────
+function openCreatePromo(type) {
+  openPromoModal(null, type);
+}
+
+function openPromoModal(existing, forceType) {
+  var isEdit = !!existing;
+  var p = existing || {id:'',name:'',type:'percent',value:0,code:'',target:'all_customers',vehicle:'all',minFare:0,maxUses:500,start:'',end:'',desc:''};
+  document.getElementById('modal-title').textContent = isEdit ? 'Edit promotion — '+p.name : 'Create new promotion';
+
+  document.getElementById('modal-body').innerHTML =
+    '<div class="fg"><label class="fl">Promotion name</label>' +
+      '<input class="fi" id="pm-name" value="'+p.name+'" placeholder="e.g. New Year Flash Sale"></div>' +
+    '<div class="fg"><label class="fl">Description (shown to customers)</label>' +
+      '<textarea class="fi" id="pm-desc" rows="2" placeholder="Short description of the offer…" style="resize:vertical">'+p.desc+'</textarea></div>' +
+    '<div class="frow">' +
+      '<div class="fg"><label class="fl">Discount type</label>' +
+        '<select class="fi fi-sel" id="pm-type" onchange="toggleDiscountType()">' +
+          '<option value="percent"'+(p.type==='percent'?' selected':'')+'>Percentage off (%)</option>' +
+          '<option value="flat"'+(p.type==='flat'?' selected':'')+'>Flat amount off (GHS)</option>' +
+          '<option value="free_stop">Free extra stop</option>' +
+        '</select></div>' +
+      '<div class="fg" id="pm-val-group"><label class="fl" id="pm-val-label">'+(p.type==='percent'?'Percentage (%)':'Amount (GHS)')+'</label>' +
+        '<input class="fi" id="pm-value" type="number" value="'+(p.value||'')+'" placeholder="e.g. 20" min="1"></div>' +
+    '</div>' +
+    '<div class="frow">' +
+      '<div class="fg"><label class="fl">Delivery method</label>' +
+        '<select class="fi fi-sel" id="pm-method"><option value="code">Promo code</option><option value="auto">Auto discount (no code)</option></select></div>' +
+      '<div class="fg" id="pm-code-group"><label class="fl">Promo code</label>' +
+        '<div style="display:flex;gap:6px">' +
+          '<input class="fi" id="pm-code" value="'+p.code+'" placeholder="e.g. SAVE20" style="text-transform:uppercase;flex:1">' +
+          '<button class="btn btn-ghost btn-sm" onclick="generateCode()" type="button"><i class="ti ti-refresh"></i></button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="frow">' +
+      '<div class="fg"><label class="fl">Target audience</label>' +
+        '<select class="fi fi-sel" id="pm-target">' +
+          '<option value="all_customers"'+(p.target==='all_customers'?' selected':'')+'>All customers</option>' +
+          '<option value="new_customers"'+(p.target==='new_customers'?' selected':'')+'>New customers only</option>' +
+          '<option value="corporate"'+(p.target==='corporate'?' selected':'')+'>Corporate accounts</option>' +
+          '<option value="drivers"'+(p.target==='drivers'?' selected':'')+'>Drivers (wallet bonus)</option>' +
+          '<option value="specific">Specific user list</option>' +
+        '</select></div>' +
+      '<div class="fg"><label class="fl">Vehicle type</label>' +
+        '<select class="fi fi-sel" id="pm-vehicle">' +
+          '<option value="all"'+(p.vehicle==='all'?' selected':'')+'>All vehicle types</option>' +
+          '<option value="motorbike"'+(p.vehicle==='motorbike'?' selected':'')+'>Motorbike only</option>' +
+          '<option value="car"'+(p.vehicle==='car'?' selected':'')+'>Car only</option>' +
+          '<option value="van"'+(p.vehicle==='van'?' selected':'')+'>Van only</option>' +
+        '</select></div>' +
+    '</div>' +
+    '<div class="frow">' +
+      '<div class="fg"><label class="fl">Minimum fare (GHS)</label>' +
+        '<input class="fi" id="pm-minfar" type="number" value="'+(p.minFare||0)+'" placeholder="0 = no minimum"></div>' +
+      '<div class="fg"><label class="fl">Maximum uses</label>' +
+        '<input class="fi" id="pm-maxuses" type="number" value="'+(p.maxUses||500)+'" placeholder="e.g. 500"></div>' +
+    '</div>' +
+    '<div class="frow">' +
+      '<div class="fg"><label class="fl">Start date</label><input class="fi" type="date" id="pm-start" value="'+(p.start||'')+'"></div>' +
+      '<div class="fg"><label class="fl">End date</label><input class="fi" type="date" id="pm-end" value="'+(p.end||'')+'"></div>' +
+    '</div>' +
+    '<div style="background:var(--brand-light);padding:10px 12px;border-radius:var(--rs);font-size:12px;color:var(--brand-dark)">' +
+      '<i class="ti ti-info-circle"></i> The promotion activates immediately on the start date and stops exactly at midnight on the end date. All redemptions and costs are logged to the audit trail.' +
+    '</div>';
+
+  document.getElementById('modal-footer').innerHTML =
+    '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+    (isEdit ? '<button class="btn btn-danger btn-sm" onclick="endPromo(\''+p.id+'\',\''+p.name+'\');closeModal()"><i class="ti ti-trash"></i> End</button>' : '') +
+    '<button class="btn btn-primary" onclick="savePromo('+(isEdit?'\''+p.id+'\'':'null')+')">' +
+      '<i class="ti '+(isEdit?'ti-check':'ti-plus')+'"></i> '+(isEdit?'Save changes':'Create promotion')+'</button>';
+
+  document.getElementById('modal-wrap').classList.add('open');
+}
+
+function toggleDiscountType() {
+  var t = document.getElementById('pm-type');
+  var lbl = document.getElementById('pm-val-label');
+  var grp = document.getElementById('pm-val-group');
+  if(!t) return;
+  if(t.value === 'percent') { if(lbl) lbl.textContent = 'Percentage (%)'; if(grp) grp.style.display=''; }
+  else if(t.value === 'flat') { if(lbl) lbl.textContent = 'Amount (GHS)'; if(grp) grp.style.display=''; }
+  else { if(grp) grp.style.display='none'; }
+}
+
+function generateCode() {
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var code = '';
+  for(var i=0;i<8;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  var inp = document.getElementById('pm-code');
+  if(inp) inp.value = code;
+}
+
+function savePromo(existingId) {
+  var name = document.getElementById('pm-name');
+  if(!name || !name.value.trim()) { toast('Please enter a promotion name', 'error'); return; }
+  var val = document.getElementById('pm-value');
+  var valNum = val ? parseFloat(val.value) : 0;
+  if(valNum <= 0 && document.getElementById('pm-type').value !== 'free_stop') { toast('Please enter a valid discount value', 'error'); return; }
+  var code = document.getElementById('pm-code');
+  var codeVal = code ? code.value.trim().toUpperCase() : '';
+  var end = document.getElementById('pm-end');
+  var endVal = end ? end.value : '';
+  if(!endVal) { toast('Please set an end date', 'error'); return; }
+
+  if(existingId) {
+    var p = promoState.promos.find(function(x){ return x.id===existingId; });
+    if(p) {
+      p.name = name.value.trim();
+      p.code = codeVal;
+      toast('Promotion updated: '+p.name, 'success');
+    }
+  } else {
+    promoState.promos.unshift({
+      id:'PROMO-00'+(promoState.promos.length+1),
+      name:name.value.trim(),
+      type:document.getElementById('pm-type').value,
+      value:valNum,
+      code:codeVal||'N/A',
+      target:document.getElementById('pm-target').value,
+      vehicle:document.getElementById('pm-vehicle').value,
+      minFare:parseFloat(document.getElementById('pm-minfar').value)||0,
+      uses:0,
+      maxUses:parseInt(document.getElementById('pm-maxuses').value)||500,
+      spent:'GHS 0',
+      status:'active',
+      start:document.getElementById('pm-start').value||'Today',
+      end:endVal,
+      desc:document.getElementById('pm-desc').value||''
+    });
+    toast('Promotion created and activated!', 'success');
+  }
+  closeModal();
+  nav('promotions');
+}
+
+function openEditAutoModal(name) {
+  document.getElementById('modal-title').textContent = 'Edit auto discount — '+name;
+  document.getElementById('modal-body').innerHTML =
+    '<div class="fg"><label class="fl">Rule name</label><input class="fi" value="'+name+'"></div>' +
+    '<div class="fg"><label class="fl">Trigger condition</label>' +
+      '<select class="fi fi-sel"><option>First booking by new user</option><option>Booking on Monday</option><option>Booking placed 9pm–6am</option><option>Booking with 3+ stops</option><option>Custom condition</option></select></div>' +
+    '<div class="frow">' +
+      '<div class="fg"><label class="fl">Discount type</label><select class="fi fi-sel"><option>Percentage off (%)</option><option>Flat amount off (GHS)</option><option>Free extra stop</option></select></div>' +
+      '<div class="fg"><label class="fl">Value</label><input class="fi" type="number" placeholder="e.g. 10"></div>' +
+    '</div>' +
+    '<div class="fg"><label class="fl">Maximum discount cap (GHS)</label><input class="fi" type="number" value="25" placeholder="Optional — leave blank for no cap"></div>';
+  document.getElementById('modal-footer').innerHTML =
+    '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="toast(\'Auto discount updated\',\'success\');closeModal()"><i class="ti ti-check"></i> Save changes</button>';
+}
+
+// ── REFERRALS ─────────────────────────────────────────────────────────────
+screens['referrals'] = function() {
+  return '<div class="fade">' +
+  '<div class="stat-grid mb20">' +
+    mkStat('ti-users-plus','Total referrals (month)','218','+44 vs last month','up','var(--teal-light)','var(--teal)') +
+    mkStat('ti-gift','Rewards paid out','GHS 2,180','GHS 10 per referral','neu','var(--green-light)','var(--green)') +
+    mkStat('ti-user-check','Converted referrals','84%','184 of 218 activated','up','var(--brand-light)','var(--brand)') +
+    mkStat('ti-currency','Revenue from referred users','GHS 9,200','vs GHS 2,180 cost','up','var(--purple-light)','var(--purple)') +
+  '</div>' +
+  '<div class="grid2 mb16">' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Customer referral programme</div>' +
+      '<span class="chip green">Active</span></div>' +
+      '<div class="card-bd">' +
+        '<div style="background:var(--green-light);padding:12px;border-radius:var(--rs);margin-bottom:14px">' +
+          '<div class="fw6 mb4">Current offer</div>' +
+          '<div class="fs13">Refer a friend: <strong>GHS 10</strong> wallet credit for both referrer and new user on their first completed delivery</div>' +
+        '</div>' +
+        '<div style="display:grid;gap:10px">' +
+          kv('Reward for referrer','GHS 10 wallet credit') +
+          kv('Reward for new user','GHS 10 off first delivery') +
+          kv('Trigger','New user completes first delivery') +
+          kv('Max referrals / user','10 per month') +
+          kv('Total budget / month','GHS 5,000') +
+        '</div>' +
+        '<div class="flex gap8 mt12">' +
+          '<button class="btn btn-ghost btn-sm" onclick="openEditReferral(\'customer\')"><i class="ti ti-edit"></i> Edit programme</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="toast(\'Programme paused\',\'warning\')"><i class="ti ti-player-pause"></i> Pause</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Driver referral programme</div>' +
+      '<span class="chip amber">Paused</span></div>' +
+      '<div class="card-bd">' +
+        '<div style="background:var(--amber-light);padding:12px;border-radius:var(--rs);margin-bottom:14px">' +
+          '<div class="fw6 mb4">Current offer</div>' +
+          '<div class="fs13">Refer a driver: <strong>GHS 30</strong> wallet bonus when referred driver completes their 10th trip</div>' +
+        '</div>' +
+        '<div style="display:grid;gap:10px">' +
+          kv('Reward for referrer','GHS 30 wallet bonus') +
+          kv('Reward for new driver','GHS 10 wallet bonus') +
+          kv('Trigger','Referred driver completes 10 trips') +
+          kv('Max referrals / driver','No limit') +
+          kv('Total budget / month','GHS 3,000') +
+        '</div>' +
+        '<div class="flex gap8 mt12">' +
+          '<button class="btn btn-ghost btn-sm" onclick="openEditReferral(\'driver\')"><i class="ti ti-edit"></i> Edit programme</button>' +
+          '<button class="btn btn-success btn-sm" onclick="toast(\'Driver referral programme resumed\',\'success\')"><i class="ti ti-player-play"></i> Resume</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+  '<div class="card"><div class="card-hd"><div class="card-title">Top referrers this month</div>' +
+    '<button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button></div>' +
+    '<table class="tbl"><thead><tr><th>User</th><th>Type</th><th>Referrals sent</th><th>Converted</th><th>Rewards earned</th><th>Joined</th></tr></thead><tbody>' +
+      refRow('Ama Kuffour','Customer','14','12','GHS 120','Dec 2024') +
+      refRow('Kofi Boateng','Customer','9','8','GHS 80','Nov 2024') +
+      refRow('Kwame Asante','Driver','6','6','GHS 180','Dec 2024') +
+      refRow('Adjoa Mensah','Customer','8','5','GHS 50','Dec 2024') +
+      refRow('Yaa Mensah','Driver','4','4','GHS 120','Dec 2024') +
+    '</tbody></table>' +
+  '</div></div>';
+};
+
+function refRow(name, type, sent, conv, reward, joined) {
+  var tc = type==='Customer'?'blue':'amber';
+  return '<tr>' +
+    '<td><div class="flex items-center gap8"><div class="avatar av-'+tc+'" style="font-size:11px">'+name.split(' ').map(function(n){return n[0];}).join('')+'</div><span class="fw6 fs13">'+name+'</span></div></td>' +
+    '<td><span class="chip '+tc+'">'+type+'</span></td>' +
+    '<td class="fw6">'+sent+'</td>' +
+    '<td class="fw6 txt-green">'+conv+'</td>' +
+    '<td class="fw6 txt-brand">'+reward+'</td>' +
+    '<td class="muted fs12">'+joined+'</td>' +
+  '</tr>';
+}
+
+function openEditReferral(type) {
+  var isCustomer = type==='customer';
+  document.getElementById('modal-title').textContent = 'Edit '+(isCustomer?'customer':'driver')+' referral programme';
+  document.getElementById('modal-body').innerHTML =
+    '<div class="fg"><label class="fl">Reward for referrer ('+(isCustomer?'wallet credit':'wallet bonus')+')</label>' +
+      '<div style="display:flex;align-items:center;gap:8px"><span class="fs13 fw6">GHS</span><input class="fi" type="number" value="'+(isCustomer?'10':'30')+'" style="max-width:120px"></div></div>' +
+    '<div class="fg"><label class="fl">Reward for new '+(isCustomer?'customer':'driver')+'</label>' +
+      '<div style="display:flex;align-items:center;gap:8px"><span class="fs13 fw6">GHS</span><input class="fi" type="number" value="'+(isCustomer?'10':'10')+'" style="max-width:120px"></div></div>' +
+    '<div class="fg"><label class="fl">Reward trigger</label>' +
+      '<select class="fi fi-sel">'+(isCustomer?'<option>New user completes first delivery</option><option>New user completes 3 deliveries</option>':'<option>Referred driver completes 10 trips</option><option>Referred driver completes 5 trips</option>')+'</select></div>' +
+    '<div class="frow">' +
+      '<div class="fg"><label class="fl">Max referrals per user / month</label><input class="fi" type="number" value="'+(isCustomer?'10':'999')+'" placeholder="Leave blank for unlimited"></div>' +
+      '<div class="fg"><label class="fl">Monthly budget cap (GHS)</label><input class="fi" type="number" value="'+(isCustomer?'5000':'3000')+'"></div>' +
+    '</div>';
+  document.getElementById('modal-footer').innerHTML =
+    '<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="toast(\'Referral programme updated\',\'success\');closeModal()"><i class="ti ti-check"></i> Save changes</button>';
+  document.getElementById('modal-wrap').classList.add('open');
+}
+
+// ── CUSTOMER SUPPORT ──────────────────────────────────────────────────────
+var supportTickets = [
+  {id:'TKT-0042',user:'Ama Kuffour',type:'customer',issue:'Package not delivered',booking:'DLV-00431',priority:'high',status:'open',created:'45 min ago',channel:'in-app'},
+  {id:'TKT-0041',user:'Kofi Boateng',type:'customer',issue:'Driver overcharged cash',booking:'DLV-00418',priority:'high',status:'open',created:'2 hr ago',channel:'whatsapp'},
+  {id:'TKT-0040',user:'Kwame Asante',type:'driver',issue:'Payout not received',booking:'—',priority:'medium',status:'open',created:'3 hr ago',channel:'sms'},
+  {id:'TKT-0039',user:'Adjoa Mensah',type:'customer',issue:'Wrong item in package',booking:'DLV-00410',priority:'medium',status:'in_progress',created:'5 hr ago',channel:'in-app'},
+  {id:'TKT-0038',user:'Accra Foods Ltd',type:'corporate',issue:'Invoice discrepancy — December',booking:'—',priority:'low',status:'in_progress',created:'1 day ago',channel:'email'},
+  {id:'TKT-0037',user:'Esi Duodu',type:'driver',issue:'App crashing on pickup confirmation',booking:'DLV-00402',priority:'low',status:'resolved',created:'2 days ago',channel:'in-app'},
+  {id:'TKT-0036',user:'Nana Asante',type:'customer',issue:'Refund not processed',booking:'DLV-00395',priority:'high',status:'resolved',created:'2 days ago',channel:'whatsapp'},
+];
+
+screens['support'] = function() {
+  var priColor = {high:'red',medium:'amber',low:'gray'};
+  var stColor = {open:'red',in_progress:'amber',resolved:'green'};
+  var chIcon = {'in-app':'ti-device-mobile','whatsapp':'ti-brand-whatsapp',sms:'ti-message',email:'ti-mail',phone:'ti-phone'};
+
+  var rows = supportTickets.map(function(t) {
+    return '<tr style="cursor:pointer" onclick="openTicketPanel(\''+t.id+'\')">' +
+      '<td class="fw6 txt-brand">'+t.id+'</td>' +
+      '<td>' +
+        '<div class="flex items-center gap8">' +
+          '<div class="avatar '+(t.type==='driver'?'av-amber':t.type==='corporate'?'av-purple':'av-blue')+'" style="font-size:10px">'+t.user.split(' ').map(function(n){return n[0];}).join('').slice(0,2)+'</div>' +
+          '<div><div class="fw6 fs12">'+t.user+'</div>' +
+            '<span class="chip '+(t.type==='driver'?'amber':t.type==='corporate'?'purple':'blue')+'" style="font-size:10px;padding:1px 6px">'+t.type+'</span>' +
+          '</div>' +
+        '</div>' +
+      '</td>' +
+      '<td class="fs13">'+t.issue+'</td>' +
+      '<td class="fs12 muted">'+t.booking+'</td>' +
+      '<td><span class="chip '+priColor[t.priority]+'">'+t.priority+'</span></td>' +
+      '<td><span class="chip '+stColor[t.status]+'">'+t.status.replace('_',' ')+'</span></td>' +
+      '<td class="fs12 muted">'+t.created+'</td>' +
+      '<td><i class="ti '+chIcon[t.channel]+'" style="font-size:15px;color:var(--g400)" title="'+t.channel+'"></i></td>' +
+    '</tr>';
+  }).join('');
+
+  var open = supportTickets.filter(function(t){return t.status==='open';}).length;
+  var inprog = supportTickets.filter(function(t){return t.status==='in_progress';}).length;
+
+  return '<div class="fade">' +
+  '<div class="stat-grid mb20">' +
+    mkStat('ti-ticket','Open tickets',open.toString(),'Needs attention','down','var(--red-light)','var(--red)') +
+    mkStat('ti-clock','In progress',inprog.toString(),'Being handled','neu','var(--amber-light)','var(--amber)') +
+    mkStat('ti-check','Resolved today','14','Avg 38 min resolution','up','var(--green-light)','var(--green)') +
+    mkStat('ti-star','CSAT score','4.2 / 5','Last 30 days','up','var(--brand-light)','var(--brand)') +
+  '</div>' +
+
+  '<div class="grid2 mb16">' +
+    // Support channels card
+    '<div class="card"><div class="card-hd"><div class="card-title">Support channels</div><span class="chip green">All active</span></div>' +
+      '<div class="card-bd" style="display:grid;gap:10px">' +
+        channelRow('ti-device-mobile','In-app live chat','Customers & drivers tap Help in-app','Active','green') +
+        channelRow('ti-brand-whatsapp','WhatsApp Business','wa.me/233300000001 · monitored by team','Active','green') +
+        channelRow('ti-message','SMS support line','Text HELP to *713# (USSD) or short code','Active','green') +
+        channelRow('ti-phone','Phone support line','+233 30 000 0001 · Mon–Fri 7am–10pm','Active','green') +
+        channelRow('ti-mail','Email support','support@delivrgh.com · SLA 4 hours','Active','green') +
+      '</div>' +
+    '</div>' +
+
+    // SLA and hours
+    '<div class="card"><div class="card-hd"><div class="card-title">SLA & operating hours</div></div>' +
+      '<div class="card-bd" style="display:grid;gap:10px">' +
+        '<div style="background:var(--g50);padding:12px;border-radius:var(--rs)">' +
+          '<div class="fw6 fs13 mb8">Response time targets</div>' +
+          '<div style="display:grid;gap:6px;font-size:13px">' +
+            kv('High priority (P1)','Respond within 30 min') +
+            kv('Medium priority (P2)','Respond within 2 hours') +
+            kv('Low priority (P3)','Respond within 4 hours') +
+            kv('Corporate accounts','Dedicated rep — 1 hour SLA') +
+          '</div>' +
+        '</div>' +
+        '<div style="background:var(--g50);padding:12px;border-radius:var(--rs)">' +
+          '<div class="fw6 fs13 mb8">Operating hours</div>' +
+          '<div style="display:grid;gap:6px;font-size:13px">' +
+            kv('In-app / SMS / WhatsApp','24 / 7 (automated + human)') +
+            kv('Phone support','Monday–Friday 7am–10pm') +
+            kv('Email','24hr with 4hr SLA during hours') +
+          '</div>' +
+        '</div>' +
+        '<button class="btn btn-ghost btn-sm" onclick="openModal(\'edit-sla\')"><i class="ti ti-edit"></i> Edit SLA settings</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<div class="card"><div class="card-hd"><div class="card-title">All tickets</div>' +
+    '<div class="flex gap8">' +
+      '<select class="fi fi-sel" style="width:auto;padding:6px 22px 6px 10px;font-size:12px"><option>All statuses</option><option>Open</option><option>In progress</option><option>Resolved</option></select>' +
+      '<select class="fi fi-sel" style="width:auto;padding:6px 22px 6px 10px;font-size:12px"><option>All priorities</option><option>High</option><option>Medium</option><option>Low</option></select>' +
+      '<select class="fi fi-sel" style="width:auto;padding:6px 22px 6px 10px;font-size:12px"><option>All channels</option><option>In-app</option><option>WhatsApp</option><option>SMS</option><option>Phone</option><option>Email</option></select>' +
+      '<input class="fi" placeholder="Search…" style="max-width:180px">' +
+      '<button class="btn btn-primary btn-sm" onclick="openModal(\'new-ticket\')"><i class="ti ti-plus"></i> New ticket</button>' +
+    '</div>' +
+  '</div>' +
+  '<div style="overflow-x:auto"><table class="tbl"><thead>' +
+    '<tr><th>ID</th><th>User</th><th>Issue</th><th>Booking</th><th>Priority</th><th>Status</th><th>Opened</th><th>Ch.</th></tr>' +
+  '</thead><tbody>'+rows+'</tbody></table></div></div></div>';
+};
+
+function channelRow(icon, label, desc, status, sc) {
+  return '<div class="flex items-center gap10">' +
+    '<div style="width:34px;height:34px;background:var(--g100);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+      '<i class="ti '+icon+'" style="font-size:16px;color:var(--g500)"></i></div>' +
+    '<div style="flex:1"><div class="fw6 fs12">'+label+'</div><div class="fs11 muted">'+desc+'</div></div>' +
+    '<span class="chip '+sc+'" style="font-size:10px">'+status+'</span>' +
+  '</div>';
+}
+
+function openTicketPanel(id) {
+  var t = supportTickets.find(function(x){return x.id===id;});
+  if(!t) return;
+  var priColor = {high:'red',medium:'amber',low:'gray'};
+  var stColor = {open:'red',in_progress:'amber',resolved:'green'};
+  document.getElementById('panel-title').textContent = t.id + ' — ' + t.issue;
+  document.getElementById('panel-body').innerHTML =
+    '<div class="flex gap8 mb12">' +
+      '<span class="chip '+priColor[t.priority]+'">'+t.priority+' priority</span>' +
+      '<span class="chip '+stColor[t.status]+'">'+t.status.replace('_',' ')+'</span>' +
+      '<span class="chip gray">'+t.channel+'</span>' +
+    '</div>' +
+    '<div style="display:grid;gap:8px;font-size:13px;background:var(--g50);padding:12px;border-radius:var(--rs);margin-bottom:14px">' +
+      kv('User',t.user+' ('+t.type+')') +
+      kv('Booking',t.booking) +
+      kv('Opened',t.created) +
+    '</div>' +
+    '<div class="fw6 fs13 mb8">Conversation</div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">' +
+      convoMsg('user',t.user,'Hello, I have an issue with my delivery. '+t.issue+'.','45 min ago') +
+      convoMsg('agent','Support Agent','Thank you for reaching out, '+t.user.split(' ')[0]+'. We are looking into this right now and will get back to you shortly.','40 min ago') +
+    '</div>' +
+    '<div class="fg"><label class="fl">Reply</label>' +
+      '<textarea class="fi" rows="3" placeholder="Type your response…" style="resize:vertical;margin-bottom:8px"></textarea>' +
+      '<div class="flex gap8">' +
+        '<select class="fi fi-sel" style="width:auto;padding:6px 22px 6px 10px;font-size:12px"><option>Send via in-app</option><option>Send via SMS</option><option>Send via WhatsApp</option><option>Send via email</option></select>' +
+        '<button class="btn btn-primary btn-sm" onclick="toast(\'Reply sent to '+t.user+'\',\'success\')"><i class="ti ti-send"></i> Send reply</button>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('panel-footer').innerHTML =
+    (t.status!=='resolved' ?
+      '<button class="btn btn-success btn-sm" onclick="toast(\'Ticket '+t.id+' resolved\',\'success\');closePanel()"><i class="ti ti-check"></i> Mark resolved</button>' : '') +
+    '<button class="btn btn-ghost btn-sm" onclick="toast(\'Ticket escalated to senior agent\',\'warning\')"><i class="ti ti-arrow-up"></i> Escalate</button>' +
+    '<button class="btn btn-secondary btn-sm" onclick="closePanel()">Close</button>';
+  openPanel();
+}
+
+function convoMsg(role, name, text, time) {
+  var isUser = role==='user';
+  return '<div style="background:'+(isUser?'var(--g50)':'var(--brand-light)')+';padding:10px 12px;border-radius:var(--rs)">' +
+    '<div class="flex justify-between mb4"><span class="fw6 fs12">'+(isUser?name:'Support Agent')+'</span><span class="fs11 muted">'+time+'</span></div>' +
+    '<div class="fs13">'+text+'</div>' +
+  '</div>';
+}
+
+// ── SMS DELIVERY LOG ───────────────────────────────────────────────────────
+var smsLogData = [
+  {id:'SMS-00892',booking:'DLV-00449',to:'+233 24 567 8900',type:'New order offer',content:'NEW ORDER #DLV-00449: Pickup: Ring Road. Drop: Osu. GHS 22. Reply YES/NO.',status:'delivered',network:'MTN',sent:'2:14pm',delivered_at:'2:14pm',latency:'1.2s'},
+  {id:'SMS-00891',booking:'DLV-00449',to:'+233 24 567 8901',type:'Booking confirmed',content:'Your booking DLV-00449 is confirmed. Track: delivrgh.com/t/ABC123',status:'delivered',network:'MTN',sent:'2:13pm',delivered_at:'2:13pm',latency:'0.9s'},
+  {id:'SMS-00890',booking:'DLV-00448',to:'+233 20 345 6789',type:'Pickup confirmed',content:'DLV-00448: Package picked up. ETA 8 min. Track: delivrgh.com/t/DEF456',status:'delivered',network:'Vodafone',sent:'2:08pm',delivered_at:'2:09pm',latency:'2.1s'},
+  {id:'SMS-00889',booking:'DLV-00447',to:'+233 54 333 4444',type:'New order offer',content:'NEW ORDER #DLV-00447: Pickup: Madina Mkt. Drop: Osu. GHS 28. Reply YES/NO.',status:'delivered',network:'AirtelTigo',sent:'2:05pm',delivered_at:'2:06pm',latency:'1.8s'},
+  {id:'SMS-00888',booking:'DLV-00446',to:'+233 24 111 2222',type:'Delivery complete',content:'DLV-00446 DELIVERED! GHS 68.00 added to your wallet. Balance: GHS 212.',status:'failed',network:'MTN',sent:'1:58pm',delivered_at:'—',latency:'—'},
+  {id:'SMS-00887',booking:'DLV-00445',to:'+233 26 555 7890',type:'New order offer',content:'NEW ORDER #DLV-00445: Pickup: Osu. Drop: Airport. GHS 18. Reply YES/NO.',status:'delivered',network:'MTN',sent:'1:42pm',delivered_at:'1:42pm',latency:'0.7s'},
+  {id:'SMS-00886',booking:'KYC',to:'+233 54 333 4444',type:'KYC reminder',content:'DelivrGH: Your account is missing documents. Upload vehicle registration to complete KYC.',status:'delivered',network:'AirtelTigo',sent:'10:00am',delivered_at:'10:01am',latency:'1.5s'},
+  {id:'SMS-00885',booking:'DLV-00440',to:'+233 20 999 8888',type:'Payment request',content:'DelivrGH: Your delivery GHS 45 — please send MoMo to 0300000001 Ref: DLV00440. Confirm with PAID.',status:'pending',network:'MTN',sent:'1:10pm',delivered_at:'—',latency:'—'},
+];
+
+screens['sms-tracking'] = function() {
+  var total = smsLogData.length;
+  var delivered = smsLogData.filter(function(s){return s.status==='delivered';}).length;
+  var failed = smsLogData.filter(function(s){return s.status==='failed';}).length;
+  var pending = smsLogData.filter(function(s){return s.status==='pending';}).length;
+  var rate = Math.round(delivered/total*100);
+
+  var stColor = {delivered:'green',failed:'red',pending:'amber'};
+  var typeColor = {'New order offer':'blue','Booking confirmed':'teal','Pickup confirmed':'teal','Delivery complete':'green','KYC reminder':'amber','Payment request':'purple'};
+
+  var rows = smsLogData.map(function(s) {
+    return '<tr>' +
+      '<td class="fw6 fs12">'+s.id+'</td>' +
+      '<td class="fs12 muted">'+s.booking+'</td>' +
+      '<td class="fs12">'+s.to+'</td>' +
+      '<td><span class="chip '+(typeColor[s.type]||'gray')+'" style="font-size:10px">'+s.type+'</span></td>' +
+      '<td class="fs11 muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+s.content+'">'+s.content.substring(0,55)+'…</td>' +
+      '<td><span class="chip '+(stColor[s.status]||'gray')+'">'+s.status+'</span></td>' +
+      '<td><span class="tag">'+s.network+'</span></td>' +
+      '<td class="fs12 muted">'+s.sent+'</td>' +
+      '<td class="fs12 muted">'+s.delivered_at+'</td>' +
+      '<td class="fs12">'+(s.latency!=='—'?s.latency:'<span class="muted">—</span>')+'</td>' +
+      '<td>'+(s.status==='failed'?'<button class="btn btn-ghost btn-xs" onclick="retryFailed(\''+s.id+'\')"><i class="ti ti-refresh"></i> Retry</button>':'')+'</td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div class="fade">' +
+  '<div class="stat-grid mb20">' +
+    mkStat('ti-message','Sent today','892',total+' in last hour','neu','var(--brand-light)','var(--brand)') +
+    mkStat('ti-check','Delivery rate',rate+'%',delivered+' of '+total+' delivered','up','var(--green-light)','var(--green)') +
+    mkStat('ti-alert-circle','Failed',failed.toString(),'Retry available','down','var(--red-light)','var(--red)') +
+    mkStat('ti-clock','Avg latency','1.3s','Africa\'s Talking gateway','up','var(--teal-light)','var(--teal)') +
+  '</div>' +
+
+  '<div class="grid2 mb16">' +
+    '<div class="card"><div class="card-hd"><div class="card-title">Delivery by network</div></div><div class="card-bd">' +
+      barH('MTN MoMo','98.4% rate','98') +
+      barH('Vodafone','97.1% rate','97') +
+      barH('AirtelTigo','96.8% rate','97') +
+    '</div></div>' +
+    '<div class="card"><div class="card-hd"><div class="card-title">SMS by message type (today)</div></div><div class="card-bd">' +
+      barH('Order offers to SMS drivers','312','78') +
+      barH('Booking confirmations','198','50') +
+      barH('Delivery status updates','248','62') +
+      barH('KYC & admin','42','10') +
+      barH('Payment requests','92','23') +
+    '</div></div>' +
+  '</div>' +
+
+  '<div class="card mb16" style="border-color:var(--purple);background:var(--purple-light)">' +
+    '<div class="card-bd" style="padding:12px 16px">' +
+      '<div class="fw6 mb4" style="color:#5B21B6"><i class="ti ti-currency"></i> SMS MoMo payment flow — for orders above GHS 25 via SMS drivers</div>' +
+      '<div class="fs12" style="color:#5B21B6">When an SMS driver accepts an order where the fare exceeds GHS 25, the system automatically sends the customer a MoMo payment request SMS. The customer sends payment to the platform MoMo number, confirms with <code style="background:rgba(124,58,237,0.15);padding:1px 5px;border-radius:3px">PAID [REF]</code>, and the system verifies via Paystack before releasing the booking to the driver. These transactions appear as "Payment request" type in the log below.</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<div class="card"><div class="card-hd"><div class="card-title">SMS delivery log</div>' +
+    '<div class="flex gap8">' +
+      '<select class="fi fi-sel" style="width:auto;padding:6px 22px 6px 10px;font-size:12px"><option>All statuses</option><option>Delivered</option><option>Failed</option><option>Pending</option></select>' +
+      '<select class="fi fi-sel" style="width:auto;padding:6px 22px 6px 10px;font-size:12px"><option>All types</option><option>Order offer</option><option>Payment request</option><option>KYC</option></select>' +
+      '<button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button>' +
+      '<button class="btn btn-danger btn-sm" id="retry-all-btn" onclick="retryAllFailed()"><i class="ti ti-refresh"></i> Retry all failed ('+failed+')</button>' +
+    '</div>' +
+  '</div>' +
+  '<div style="overflow-x:auto"><table class="tbl"><thead>' +
+    '<tr><th>SMS ID</th><th>Booking</th><th>To</th><th>Type</th><th>Content</th><th>Status</th><th>Network</th><th>Sent</th><th>Delivered</th><th>Latency</th><th></th></tr>' +
+  '</thead><tbody>'+rows+'</tbody></table></div></div></div>';
+};
+
+function retryFailed(id) {
+  toast('Retrying SMS '+id+' via Africa\'s Talking…', 'warning');
+  setTimeout(function(){ toast('SMS '+id+' delivered successfully', 'success'); }, 2000);
+}
+function retryAllFailed() {
+  toast('Retrying all failed SMS messages…', 'warning');
+  setTimeout(function(){ toast('All failed SMS messages retried — 1 delivered', 'success'); }, 2000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+nav('overview');
+
+// Simulate live updates
+setInterval(function() {
+  if(currentScreen === 'overview') {
+    var el = document.querySelector('.stat-val');
+    if(el && el.textContent.match(/^\d+$/)) {
+      el.textContent = (parseInt(el.textContent) + Math.floor(Math.random()*2)).toString();
+    }
+  }
+}, 8000);
+</script>
+</body>
+</html>
