@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Delivr GH — Admin Dashboard</title>
+<title>Russhit — Admin Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
 <style>
@@ -242,7 +242,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--g800);overflow:hid
 <!-- ── SIDEBAR ── -->
 <div class="sidebar">
   <div class="sb-brand">
-    <div class="sb-logo">Delivr<em>GH</em> <span style="font-size:10px;background:rgba(220,38,38,0.2);color:#FCA5A5;padding:2px 6px;border-radius:4px;font-weight:600;vertical-align:middle">ADMIN</span></div>
+    <div class="sb-logo">Russhit <span style="font-size:10px;background:rgba(220,38,38,0.2);color:#FCA5A5;padding:2px 6px;border-radius:4px;font-weight:600;vertical-align:middle">ADMIN</span></div>
     <div class="sb-meta">Operations Control Centre · Accra</div>
   </div>
   <nav class="sb-nav">
@@ -1222,11 +1222,11 @@ function notifTab0() {
 }
 function notifTab1() {
   var templates = [
-    {name:'New order (SMS driver)','lang':'EN','preview':'DelivrGH NEW ORDER #{ref}: Pickup: {pickup}. Drop: {drop}. GHS {fare}. Reply YES to accept or NO to decline.'},
-    {name:'Delivery confirmed (EN)','lang':'EN','preview':'DelivrGH: Your booking #{ref} is confirmed. Track at: delivrgh.com/t/{token}'},
-    {name:'Delivery confirmed (TW)','lang':'TW','preview':'DelivrGH: Wo booking #{ref} da ho. Driver bɛ ba. Track wai: delivrgh.com/t/{token}'},
-    {name:'Delivery confirmed (GA)','lang':'GA','preview':'DelivrGH: Wo booking #{ref} da ho. Track: delivrgh.com/t/{token}'},
-    {name:'Driver payout','lang':'EN','preview':'DelivrGH: GHS {amount} has been added to your wallet. Balance: GHS {balance}.'},
+    {name:'New order (SMS driver)','lang':'EN','preview':'Russhit NEW ORDER #{ref}: Pickup: {pickup}. Drop: {drop}. GHS {fare}. Reply YES to accept or NO to decline.'},
+    {name:'Delivery confirmed (EN)','lang':'EN','preview':'Russhit: Your booking #{ref} is confirmed. Track at: russhit.com/t/{token}'},
+    {name:'Delivery confirmed (TW)','lang':'TW','preview':'Russhit: Wo booking #{ref} da ho. Driver bɛ ba. Track wai: russhit.com/t/{token}'},
+    {name:'Delivery confirmed (GA)','lang':'GA','preview':'Russhit: Wo booking #{ref} da ho. Track: russhit.com/t/{token}'},
+    {name:'Driver payout','lang':'EN','preview':'Russhit: GHS {amount} has been added to your wallet. Balance: GHS {balance}.'},
   ];
   return templates.map(function(t) {
     var lc = t.lang==='EN'?'blue':t.lang==='TW'?'green':'amber';
@@ -1249,8 +1249,8 @@ function notifTab2() {
 screens['settings'] = function() {
   return '<div class="fade" style="max-width:660px">' +
   settingSection('Platform','ti-settings',[
-    ['Platform name','Delivr GH','text'],
-    ['Support email','support@delivrgh.com','text'],
+    ['Platform name','Russhit','text'],
+    ['Support email','support@russhit.com','text'],
     ['Support phone','+233 30 000 0001','text'],
     ['Default language','English (en)','select'],
     ['Operating hours','All hours (24/7)','select'],
@@ -2148,7 +2148,7 @@ screens['support'] = function() {
         channelRow('ti-brand-whatsapp','WhatsApp Business','wa.me/233300000001 · monitored by team','Active','green') +
         channelRow('ti-message','SMS support line','Text HELP to *713# (USSD) or short code','Active','green') +
         channelRow('ti-phone','Phone support line','+233 30 000 0001 · Mon–Fri 7am–10pm','Active','green') +
-        channelRow('ti-mail','Email support','support@delivrgh.com · SLA 4 hours','Active','green') +
+        channelRow('ti-mail','Email support','support@russhit.com · SLA 4 hours','Active','green') +
       '</div>' +
     '</div>' +
 
@@ -2248,13 +2248,13 @@ function convoMsg(role, name, text, time) {
 // ── SMS DELIVERY LOG ───────────────────────────────────────────────────────
 var smsLogData = [
   {id:'SMS-00892',booking:'DLV-00449',to:'+233 24 567 8900',type:'New order offer',content:'NEW ORDER #DLV-00449: Pickup: Ring Road. Drop: Osu. GHS 22. Reply YES/NO.',status:'delivered',network:'MTN',sent:'2:14pm',delivered_at:'2:14pm',latency:'1.2s'},
-  {id:'SMS-00891',booking:'DLV-00449',to:'+233 24 567 8901',type:'Booking confirmed',content:'Your booking DLV-00449 is confirmed. Track: delivrgh.com/t/ABC123',status:'delivered',network:'MTN',sent:'2:13pm',delivered_at:'2:13pm',latency:'0.9s'},
-  {id:'SMS-00890',booking:'DLV-00448',to:'+233 20 345 6789',type:'Pickup confirmed',content:'DLV-00448: Package picked up. ETA 8 min. Track: delivrgh.com/t/DEF456',status:'delivered',network:'Vodafone',sent:'2:08pm',delivered_at:'2:09pm',latency:'2.1s'},
+  {id:'SMS-00891',booking:'DLV-00449',to:'+233 24 567 8901',type:'Booking confirmed',content:'Your booking DLV-00449 is confirmed. Track: russhit.com/t/ABC123',status:'delivered',network:'MTN',sent:'2:13pm',delivered_at:'2:13pm',latency:'0.9s'},
+  {id:'SMS-00890',booking:'DLV-00448',to:'+233 20 345 6789',type:'Pickup confirmed',content:'DLV-00448: Package picked up. ETA 8 min. Track: russhit.com/t/DEF456',status:'delivered',network:'Vodafone',sent:'2:08pm',delivered_at:'2:09pm',latency:'2.1s'},
   {id:'SMS-00889',booking:'DLV-00447',to:'+233 54 333 4444',type:'New order offer',content:'NEW ORDER #DLV-00447: Pickup: Madina Mkt. Drop: Osu. GHS 28. Reply YES/NO.',status:'delivered',network:'AirtelTigo',sent:'2:05pm',delivered_at:'2:06pm',latency:'1.8s'},
   {id:'SMS-00888',booking:'DLV-00446',to:'+233 24 111 2222',type:'Delivery complete',content:'DLV-00446 DELIVERED! GHS 68.00 added to your wallet. Balance: GHS 212.',status:'failed',network:'MTN',sent:'1:58pm',delivered_at:'—',latency:'—'},
   {id:'SMS-00887',booking:'DLV-00445',to:'+233 26 555 7890',type:'New order offer',content:'NEW ORDER #DLV-00445: Pickup: Osu. Drop: Airport. GHS 18. Reply YES/NO.',status:'delivered',network:'MTN',sent:'1:42pm',delivered_at:'1:42pm',latency:'0.7s'},
-  {id:'SMS-00886',booking:'KYC',to:'+233 54 333 4444',type:'KYC reminder',content:'DelivrGH: Your account is missing documents. Upload vehicle registration to complete KYC.',status:'delivered',network:'AirtelTigo',sent:'10:00am',delivered_at:'10:01am',latency:'1.5s'},
-  {id:'SMS-00885',booking:'DLV-00440',to:'+233 20 999 8888',type:'Payment request',content:'DelivrGH: Your delivery GHS 45 — please send MoMo to 0300000001 Ref: DLV00440. Confirm with PAID.',status:'pending',network:'MTN',sent:'1:10pm',delivered_at:'—',latency:'—'},
+  {id:'SMS-00886',booking:'KYC',to:'+233 54 333 4444',type:'KYC reminder',content:'Russhit: Your account is missing documents. Upload vehicle registration to complete KYC.',status:'delivered',network:'AirtelTigo',sent:'10:00am',delivered_at:'10:01am',latency:'1.5s'},
+  {id:'SMS-00885',booking:'DLV-00440',to:'+233 20 999 8888',type:'Payment request',content:'Russhit: Your delivery GHS 45 — please send MoMo to 0300000001 Ref: DLV00440. Confirm with PAID.',status:'pending',network:'MTN',sent:'1:10pm',delivered_at:'—',latency:'—'},
 ];
 
 screens['sms-tracking'] = function() {
